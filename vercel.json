@@ -1,0 +1,37 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "web": {
+      "root": "apps/worldbuilder",
+      "framework": "nextjs",
+      "buildCommand": "cd ../.. && pnpm build:schema && pnpm build:game-engine && pnpm --filter @talespin/worldbuilder exec prisma generate && pnpm build:world",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "watcher",
+          "format": "url",
+          "env": "WATCHER_API_URL"
+        }
+      ]
+    },
+    "watcher": {
+      "root": "apps/watcher",
+      "framework": "fastify",
+      "entrypoint": "src/server.ts",
+      "buildCommand": "cd ../.. && pnpm build:schema && pnpm build:ai && pnpm build:cdn",
+      "functions": {
+        "src/server.ts": { "maxDuration": 300 }
+      }
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/_watcher/:path*",
+      "destination": { "service": "watcher", "path": "/:path*" }
+    },
+    { "source": "/(.*)", "destination": { "service": "web" } }
+  ],
+  "crons": [
+    { "path": "/api/internal/generation-jobs", "schedule": "17 4 * * *" }
+  ]
+}
