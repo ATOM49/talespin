@@ -147,7 +147,9 @@ This starts:
 The worker is a separate long-running process. Production deployments must run
 `pnpm start:world-worker` and `pnpm start:narrative-worker` (or equivalent
 process commands) alongside the web application; web requests only enqueue or
-retry jobs and never execute provider generation inline.
+retry jobs and never execute provider generation inline. Vercel deployments
+are the exception: they run jobs inline after responses (see
+[Deployment](DEPLOYMENT.md)).
 
 Verify watcher independently:
 
@@ -163,12 +165,16 @@ The response should be `{"root":true}`. Sign in to worldbuilder, select the `BUI
 pnpm test:world
 pnpm --filter @talespin/game-engine test
 pnpm --filter @talespin/watcher test
+pnpm --filter @talespin/cdn test
 pnpm --filter @talespin/ai test
 pnpm build
 pnpm lint
 ```
 
-OpenAI integration cases in `@talespin/ai` skip without `OPENAI_API_KEY`. Treat focused tests, builds, and lint as separate claims from browser/provider verification.
+The `CI` GitHub Actions workflow (`.github/workflows/ci.yml`) runs these same
+checks on Node 20.19 for every pull request and push to `main`; it does not run
+the browser flow below. OpenAI integration cases in `@talespin/ai` skip without
+`OPENAI_API_KEY`. Treat focused tests, builds, and lint as separate claims from browser/provider verification.
 
 For the browser flow:
 

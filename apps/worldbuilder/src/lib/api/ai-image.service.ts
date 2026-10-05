@@ -3,6 +3,7 @@ import {
   CharacterGalleryImageSchema,
   CharacterImageRequestSchema,
 } from '@talespin/schema';
+import { watcherHeaders } from './watcher-client';
 
 export interface ImageGenerationOptions {
   timeout?: number;
@@ -121,9 +122,7 @@ export class ImageGenerationService {
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: watcherHeaders(),
         body,
         signal: controller.signal,
       });

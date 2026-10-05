@@ -153,3 +153,6 @@ packages/*/dist/
 playwright-report/
 test-results/
 blob-report/
+
+# Vercel CLI project links and local build output
+.vercel

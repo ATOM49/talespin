@@ -113,3 +113,16 @@ classification; `walkable` is only the legacy fallback. Routes cross adjacent
 cells and pause before special terrain until the player selects a mechanically
 valid transport. Deterministic fallback options prevent model failures from
 making a destination unreachable.
+
+## ADR-016: Serverless hosts run generation jobs inline
+
+**Status:** Accepted (current)
+
+Leased MongoDB jobs stay the only generation dispatch mechanism. The runner is
+a deployment choice: long-running workers where processes can stay up, and
+`inline` on Vercel, where routes that enqueue or poll jobs drain the queue
+after responding (`scheduleGenerationJobs`) and a daily cron recovers anything
+left over. Leases make overlapping runners safe. Inline runs are bounded by
+the function duration limit, so generation timeouts must fit inside it.
+Watcher requests require a shared `WATCHER_API_KEY` because a serverless
+watcher is publicly reachable.

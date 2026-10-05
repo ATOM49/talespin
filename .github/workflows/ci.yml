@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Lint, build and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Paid-provider tests (packages/ai) skip without OPENAI_API_KEY; the
+      # browser E2E suite calls paid providers and is not run here.
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+
+      # Uses the pnpm version pinned in package.json#packageManager.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # pnpm skips Prisma's install scripts, so generate the client explicitly.
+      - name: Generate Prisma Client
+        run: pnpm --filter @talespin/worldbuilder exec prisma generate
+
+      - name: Build shared packages and apps
+        run: pnpm build
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test watcher
+        run: pnpm --filter @talespin/watcher test
+
+      - name: Test worldbuilder
+        run: pnpm --filter @talespin/worldbuilder test
+
+      - name: Test game-engine
+        run: pnpm --filter @talespin/game-engine test
+
+      - name: Test cdn
+        run: pnpm --filter @talespin/cdn test
+
+      - name: Test ai
+        run: pnpm --filter @talespin/ai test

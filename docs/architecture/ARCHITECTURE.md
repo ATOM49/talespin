@@ -34,7 +34,9 @@ queue owned by worldbuilder. Web routes authorize and enqueue jobs, while a
 separate worker claims queued or lease-expired attempts, calls watcher, stores a
 validated blueprint checkpoint, and atomically commits the authoritative world
 package. Failed attempts require an explicit builder retry; interrupted leased
-attempts are automatically eligible for another worker.
+attempts are automatically eligible for another worker. On serverless hosts the
+same claim loop runs inline after responses instead of in a worker process
+(ADR-016).
 
 Story play uses the same durable pattern. A narrative worker claims leased
 `NarrativeJob` records for outlines, Mission setup, Interactions, and action

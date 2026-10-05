@@ -5,7 +5,30 @@ import { randomUUID } from 'crypto';
 export type MinioClientOptions = {
   bucket?: string;
   publicHost?: string;
+  /**
+   * Full public URL of the bucket root, for CDNs that do not put the bucket
+   * name in the path (Cloudflare R2 public buckets, S3 virtual-hosted URLs).
+   * Takes precedence over `publicHost`.
+   */
+  publicBaseUrl?: string;
 };
+
+/**
+ * Resolves the URL prefix under which uploaded keys are publicly readable:
+ * `publicBaseUrl` as given, otherwise path-style `${publicHost}/${bucket}`.
+ */
+export const resolvePublicBaseUrl = ({
+  bucket,
+  publicHost,
+  publicBaseUrl,
+}: {
+  bucket: string;
+  publicHost: string;
+  publicBaseUrl?: string;
+}): string =>
+  publicBaseUrl
+    ? publicBaseUrl.replace(/\/+$/, '')
+    : `${publicHost.replace(/\/+$/, '')}/${bucket}`;
 
 export type UploadBufferArgs = {
   buffer: Buffer;
@@ -77,6 +100,8 @@ export function createMinioClient(
     useSSL: (process.env.MINIO_USE_SSL || 'false').toLowerCase() === 'true',
     accessKey: process.env.MINIO_ACCESS_KEY || 'minioadmin',
     secretKey: process.env.MINIO_SECRET_KEY || 'minioadmin',
+    // Setting a region skips the bucket-location lookup (use "auto" for R2).
+    region: process.env.MINIO_REGION || undefined,
   });
 
   const bucket = options.bucket || process.env.MINIO_BUCKET || 'images';
@@ -85,8 +110,15 @@ export function createMinioClient(
     process.env.MINIO_PUBLIC_HOST ||
     'http://localhost:9000';
 
+  const publicBaseUrl = resolvePublicBaseUrl({
+    bucket,
+    publicHost,
+    publicBaseUrl:
+      options.publicBaseUrl || process.env.MINIO_PUBLIC_BASE_URL || undefined,
+  });
+
   const getPublicURL = (key: string): string => {
-    return `${publicHost}/${bucket}/${encodeURI(key)}`;
+    return `${publicBaseUrl}/${encodeURI(key)}`;
   };
 
   const uploadBuffer = async ({

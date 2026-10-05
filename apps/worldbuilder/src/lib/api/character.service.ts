@@ -17,6 +17,7 @@ import {
 import { ApiError } from './errors';
 import { CharacterQueryParams, CharacterQueryParamsSchema } from './types';
 import { ImageGenerationService } from './ai-image.service';
+import { watcherHeaders } from './watcher-client';
 
 const characterSelect = {
   select: {
@@ -527,7 +528,7 @@ export class CharacterService {
         `${this.watcherBaseUrl}/generate/character`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: watcherHeaders(),
           body: JSON.stringify(payload),
           signal: controller.signal,
         },

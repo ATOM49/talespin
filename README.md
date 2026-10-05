@@ -88,6 +88,7 @@ When changing `packages/schema`, `packages/game-engine`, `packages/ai`, or
 ## Documentation
 
 - [Local Development](docs/LOCAL_DEVELOPMENT.md)
+- [Deployment](docs/DEPLOYMENT.md)
 - [Product Context](docs/product/GAME_CONTEXT.md)
 - [Domain Model](docs/product/DOMAIN_MODEL.md)
 - [Gameplay Loop](docs/product/GAMEPLAY_LOOP.md)

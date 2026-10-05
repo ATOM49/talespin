@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "cd ../.. && pnpm build:schema && pnpm build:game-engine && pnpm --filter @talespin/worldbuilder exec prisma generate && pnpm build:world",
+  "crons": [
+    { "path": "/api/internal/generation-jobs", "schedule": "17 4 * * *" }
+  ]
+}

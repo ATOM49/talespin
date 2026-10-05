@@ -2,6 +2,7 @@
 export {
   createMinioClient,
   extensionForContentType,
+  resolvePublicBaseUrl,
   type MinioClientOptions,
   type MinioClientInstance,
   type UploadBufferArgs,

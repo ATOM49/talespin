@@ -17,46 +17,51 @@ const ensureEnv = (key: string) => {
 const e2eTestMode =
   process.env.E2E_TEST_MODE === 'true' && process.env.NODE_ENV !== 'production';
 
-const providers: NextAuthConfig['providers'] = e2eTestMode
-  ? [
-      Credentials({
-        id: 'e2e',
-        name: 'E2E account',
-        credentials: {},
-        async authorize() {
-          const email = 'playwright@talespin.local';
-          const user = await prisma.user.upsert({
-            where: { email },
-            update: { name: 'Playwright Builder', role: null },
-            create: { email, name: 'Playwright Builder' },
-          });
+// Providers are resolved lazily so `next build` can collect page data without
+// OAuth secrets; a missing secret fails the first auth request instead.
+const createProviders = (): NextAuthConfig['providers'] =>
+  e2eTestMode
+    ? [
+        Credentials({
+          id: 'e2e',
+          name: 'E2E account',
+          credentials: {},
+          async authorize() {
+            const email = 'playwright@talespin.local';
+            const user = await prisma.user.upsert({
+              where: { email },
+              update: { name: 'Playwright Builder', role: null },
+              create: { email, name: 'Playwright Builder' },
+            });
 
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role ?? undefined,
-          };
-        },
-      }),
-    ]
-  : [
-      Google({
-        clientId: ensureEnv('GOOGLE_CLIENT_ID'),
-        clientSecret: ensureEnv('GOOGLE_CLIENT_SECRET'),
-      }),
-      Facebook({
-        clientId: ensureEnv('FACEBOOK_CLIENT_ID'),
-        clientSecret: ensureEnv('FACEBOOK_CLIENT_SECRET'),
-      }),
-    ];
+            return {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              role: user.role ?? undefined,
+            };
+          },
+        }),
+      ]
+    : [
+        Google({
+          clientId: ensureEnv('GOOGLE_CLIENT_ID'),
+          clientSecret: ensureEnv('GOOGLE_CLIENT_SECRET'),
+        }),
+        Facebook({
+          clientId: ensureEnv('FACEBOOK_CLIENT_ID'),
+          clientSecret: ensureEnv('FACEBOOK_CLIENT_SECRET'),
+        }),
+      ];
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+const adapter = PrismaAdapter(prisma);
+
+export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
+  adapter,
   session: { strategy: 'jwt' },
   pages: { signIn: '/signin' },
   trustHost: true,
-  providers,
+  providers: createProviders(),
   callbacks: {
     async jwt({ token, user, trigger }) {
       if (user) {
@@ -84,4 +89,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
-});
+}));

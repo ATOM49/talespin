@@ -14,6 +14,7 @@ import {
   DEFAULT_GRID_WIDTH,
   type GridCellTemplate,
 } from './grid.service';
+import { watcherHeaders } from './watcher-client';
 
 type GenerationOptions = {
   watcherBaseUrl?: string;
@@ -244,7 +245,7 @@ export class WorldGenerationService {
         `${this.watcherBaseUrl}/generate/world-blueprint`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: watcherHeaders(),
           body: JSON.stringify(seed),
           signal: controller.signal,
         },

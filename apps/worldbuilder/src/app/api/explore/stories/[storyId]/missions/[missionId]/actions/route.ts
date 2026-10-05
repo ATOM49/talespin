@@ -3,6 +3,11 @@ import { GameplayService } from '@/lib/api/gameplay.service';
 import { ApiError, handleApiError } from '@/lib/api/errors';
 import { EXPLORER_ONLY, requireUser } from '@/lib/auth/guards';
 import { prisma } from '@/lib/prisma';
+import { scheduleGenerationJobs } from '@/lib/jobs/generation-runner';
+
+// Leaves time for queued generation jobs to run inline after the response
+// on serverless hosts (see scheduleGenerationJobs).
+export const maxDuration = 300;
 
 const gameplay = new GameplayService(prisma);
 type Params = Promise<{ storyId: string; missionId: string }>;
@@ -19,6 +24,7 @@ export async function POST(request: NextRequest, context: { params: Params }) {
       user.id,
       await request.json(),
     );
+    scheduleGenerationJobs();
     return NextResponse.json(view);
   } catch (error) {
     return handleApiError(error);

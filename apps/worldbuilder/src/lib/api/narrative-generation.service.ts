@@ -34,6 +34,7 @@ import {
   type StoryOutlineProposal,
 } from '@talespin/schema';
 import { ApiError } from './errors';
+import { watcherHeaders } from './watcher-client';
 
 const LEASE_MS = 5 * 60 * 1000;
 
@@ -929,7 +930,7 @@ export class NarrativeGenerationService {
         `${this.watcherBaseUrl}/generate/narrative`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: watcherHeaders(),
           body: JSON.stringify(request),
           signal: controller.signal,
         },

@@ -1,0 +1,20 @@
+# Keep the build context to sources; images install and build everything.
+.git
+.github
+.husky
+.serena
+.changeset
+**/node_modules
+**/dist
+**/.next
+**/coverage
+**/*.tsbuildinfo
+**/.DS_Store
+playwright-report
+test-results
+e2e
+
+# Never send local secrets into an image.
+**/.env
+**/.env.*
+!**/.env.example
