@@ -38,6 +38,7 @@ export default defineConfig([
       '**/.next',
       '**/public',
       '**/dist',
+      '**/.vercel',
       'pnpm-lock.yaml',
       'pnpm-workspace.yaml',
     ],
