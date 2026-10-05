@@ -16,6 +16,7 @@
  */
 import { File as NodeFile } from 'node:buffer';
 import fp from 'fastify-plugin';
+import type {} from './cdn.js';
 import type { MinioClientInstance } from '@talespin/cdn';
 import type {
   ImageEditModel,
@@ -29,20 +30,16 @@ import {
   missingSegmindAdapterError,
   type ImagePurpose,
 } from '../config/ai.js';
+import {
+  recoverGeneration,
+  generationFingerprint,
+  type ProviderRecovery,
+} from '../services/generation-recovery.js';
 import { createImageCacheFingerprint } from '../utils/image-cache.js';
 
 export type ImageGenOptions = {
   defaultSize?: '1024x1024' | '1792x1024' | '1024x1792';
 };
-
-// const slugify = (value: string | undefined, fallback: string) => {
-//   const base = value && value.trim().length > 0 ? value : fallback;
-
-//   return base
-//     .toLowerCase()
-//     .replace(/\s+/g, '-')
-//     .replace(/[^a-z0-9-]/g, '');
-// };
 
 const ensureTrailingSlash = (prefix: string): string =>
   prefix.endsWith('/') ? prefix : `${prefix}/`;
@@ -120,14 +117,17 @@ export default fp<ImageGenOptions>(
         map: ai.createNanoBananaProImageModel({
           client,
           model: aiConfig.image.models.map,
+          version: 'v2',
         }),
         character: ai.createSeedreamImageModel({
           client,
           model: aiConfig.image.models.character,
+          version: 'v2',
         }),
         faction: ai.createIdeogramImageModel({
           client,
           model: aiConfig.image.models.faction,
+          version: 'v2',
         }),
       };
     } else {
@@ -164,20 +164,24 @@ export default fp<ImageGenOptions>(
       prompt: string;
       purpose: ImagePurpose;
       size: ImageGenerationSize;
+      recovery?: ProviderRecovery;
     };
 
     const generateImageBuffer = async ({
       prompt,
       purpose,
       size,
+      recovery,
     }: GenerateBufferArgs): Promise<{
       buffer: Buffer;
       contentType: string;
       revisedPrompt?: string;
     }> => {
+      if (aiConfig.image.provider === 'openai') await recovery?.beforeSubmit();
       const result = await imageGenerateModels[purpose].invoke({
         prompt,
         size,
+        recovery,
       });
 
       fastify.log.debug({
@@ -209,11 +213,24 @@ export default fp<ImageGenOptions>(
       keyPrefix: string;
       contentType: string;
     }) => {
-      const uploadResult = await cdnClient.uploadBuffer({
-        buffer,
-        keyPrefix,
-        contentType,
-      });
+      // Retry storage with the same bytes; never invoke the provider again.
+      let uploadResult: { key: string; url: string } | undefined;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          uploadResult = await cdnClient.uploadBuffer({
+            buffer,
+            keyPrefix,
+            contentType,
+          });
+          break;
+        } catch (error) {
+          if (attempt === 2) throw error;
+          await new Promise((resolve) =>
+            setTimeout(resolve, 250 * (attempt + 1)),
+          );
+        }
+      }
+      if (!uploadResult) throw new Error('CDN upload failed');
 
       fastify.log.info({
         msg: 'Uploaded image to CDN',
@@ -276,11 +293,23 @@ export default fp<ImageGenOptions>(
           size,
         });
         const resolvedPrefix = `${ensureTrailingSlash(keyPrefix)}${fingerprint}/`;
-
-        return maybeReuseOrUpload({
+        // A stored artifact is sufficient evidence of success even if the
+        // upload acknowledgement or checkpoint write was lost.
+        const artifact = await cdnClient.findObjectByPrefix({
           keyPrefix: resolvedPrefix,
-          generateBuffer: () => generateImageBuffer({ prompt, purpose, size }),
+          select: 'latest',
         });
+        if (artifact) return { ...artifact, revisedPrompt: undefined };
+
+        return recoverGeneration(
+          { kind: 'image', fingerprint, keyPrefix },
+          async (recovery) =>
+            maybeReuseOrUpload({
+              keyPrefix: resolvedPrefix,
+              generateBuffer: () =>
+                generateImageBuffer({ prompt, purpose, size, recovery }),
+            }),
+        );
       },
 
       async editImageToCdn({
@@ -292,31 +321,56 @@ export default fp<ImageGenOptions>(
       }) {
         fastify.log.debug({ msg: 'Starting image edit operation' });
 
-        // 1) Invoke the image edit runnable
-        const result = await getImageEditModel().invoke({
+        const config = aiConfig.imageEdit;
+        assertAIModelConfigured('imageEdit', config);
+        const editModel = getImageEditModel();
+        const fingerprint = generationFingerprint({
+          provider: config.provider,
+          model: config.model,
           prompt,
-          image,
-          mask,
           size,
+          image: image.toString('base64'),
+          mask: mask.toString('base64'),
         });
-
-        fastify.log.debug({
-          msg: 'Received edited image',
-          size: result.editedImageBuffer.length,
-        });
-
-        const resolvedPrefix = ensureTrailingSlash(keyPrefix || 'edits/');
-        const { key, url } = await uploadBufferToCdn({
-          buffer: result.editedImageBuffer,
+        const resolvedPrefix = `${ensureTrailingSlash(keyPrefix || 'edits/')}${fingerprint}/`;
+        const artifact = await cdnClient.findObjectByPrefix({
           keyPrefix: resolvedPrefix,
-          contentType: result.contentType,
+          select: 'latest',
         });
+        if (artifact)
+          return {
+            ...artifact,
+            meta: { provider: config.provider, model: config.model, size },
+          };
+        return recoverGeneration(
+          { kind: 'edit', fingerprint, keyPrefix },
+          async (recovery) => {
+            await recovery.beforeSubmit();
+            const result = await editModel.invoke({
+              prompt,
+              image,
+              mask,
+              size,
+            });
 
-        return {
-          key,
-          url,
-          meta: result.providerMeta,
-        };
+            fastify.log.debug({
+              msg: 'Received edited image',
+              size: result.editedImageBuffer.length,
+            });
+
+            const { key, url } = await uploadBufferToCdn({
+              buffer: result.editedImageBuffer,
+              keyPrefix: resolvedPrefix,
+              contentType: result.contentType,
+            });
+
+            return {
+              key,
+              url,
+              meta: result.providerMeta,
+            };
+          },
+        );
       },
     });
   },

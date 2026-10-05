@@ -7,7 +7,6 @@ import {
   CharacterForm,
   CharacterFormSchema,
   CharacterGallerySchema,
-  CharacterGeneratedDetailsSchema,
   CharacterMetaSchema,
   CharacterProfileRequestSchema,
   PlayerCharacterCreationSchema,
@@ -17,7 +16,7 @@ import {
 import { ApiError } from './errors';
 import { CharacterQueryParams, CharacterQueryParamsSchema } from './types';
 import { ImageGenerationService } from './ai-image.service';
-import { watcherHeaders } from './watcher-client';
+import { WatcherClient } from './watcher-client';
 
 const characterSelect = {
   select: {
@@ -40,11 +39,6 @@ const characterSelect = {
     updatedAt: true,
   },
 } as const;
-
-const CharacterGenerationResponseSchema = z.object({
-  profile: CharacterGeneratedDetailsSchema,
-  gallery: CharacterGallerySchema,
-});
 
 type PrismaCharacter = Prisma.CharacterGetPayload<typeof characterSelect>;
 type AssociationReference = {
@@ -516,49 +510,17 @@ export class CharacterService {
   private async synthesizeCharacter(
     input: z.input<typeof CharacterProfileRequestSchema>,
   ) {
-    const payload = CharacterProfileRequestSchema.parse(input);
-    const controller = new AbortController();
-    const timeout = setTimeout(
-      () => controller.abort(),
-      this.generationTimeout,
-    );
-
     try {
-      const response = await fetch(
-        `${this.watcherBaseUrl}/generate/character`,
-        {
-          method: 'POST',
-          headers: watcherHeaders(),
-          body: JSON.stringify(payload),
-          signal: controller.signal,
-        },
-      );
-
-      if (!response.ok) {
-        const details = await response.text();
-        console.error('Character generation failed:', details);
-        return null;
-      }
-
-      const data = await response.json();
-      const parsed = CharacterGenerationResponseSchema.safeParse(data);
-
-      if (!parsed.success) {
-        console.error('Invalid character payload:', parsed.error);
-        return null;
-      }
-
-      return parsed.data;
+      return await new WatcherClient({
+        baseUrl: this.watcherBaseUrl,
+        timeoutMs: this.generationTimeout,
+      }).request('/generate/character', input);
     } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        console.error('Character generation timed out');
-        return null;
-      }
-
-      console.error('Error generating character:', error);
+      console.error(
+        'Character generation failed:',
+        error instanceof Error ? error.message : 'Unknown error',
+      );
       return null;
-    } finally {
-      clearTimeout(timeout);
     }
   }
 

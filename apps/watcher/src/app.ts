@@ -1,6 +1,9 @@
 import { FastifyPluginAsync, FastifyServerOptions } from 'fastify';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import auth from './plugins/auth.js';
+import recovery, {
+  type RecoveryOptions,
+} from './plugins/generation-recovery.js';
 import cdn, { type CDNPluginOptions } from './plugins/cdn.js';
 import cors from './plugins/cors.js';
 import imageGeneration, {
@@ -13,6 +16,7 @@ import root from './routes/root.js';
 export interface AppOptions extends FastifyServerOptions {
   cdn?: CDNPluginOptions;
   imageGen?: ImageGenOptions;
+  recovery?: RecoveryOptions;
 }
 
 // Pass --options via CLI arguments in command to enable these options.
@@ -37,6 +41,7 @@ const app: FastifyPluginAsync<AppOptions> = async (
   await typed.register(sensible);
   await typed.register(cors);
   await typed.register(auth);
+  await typed.register(recovery, opts.recovery ?? {});
   await typed.register(cdn, opts.cdn ?? {});
   await typed.register(imageGeneration, opts.imageGen ?? {});
 

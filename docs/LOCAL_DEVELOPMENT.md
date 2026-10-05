@@ -43,6 +43,20 @@ AI_IMAGE_EDIT_PROVIDER=openai
 
 Keep the model and MinIO defaults from `apps/watcher/.env.example`. Both API keys are required for the complete mixed-provider workflow. To use OpenAI for all image generation, set `AI_IMAGE_PROVIDER=openai`; `OPENAI_API_KEY` is then the only provider credential required.
 
+### Watcher recovery storage
+
+Set `WATCHER_GENERATION_DATABASE_URL=mongodb://localhost:27017/talespin` in
+`apps/watcher/.env` (included in the template). Watcher uses only the
+`GenerationCheckpoint` collection for infrastructure results and provider
+request IDs. Production credentials should be scoped to that collection.
+For containers, use the reachable MongoDB hostname in this URL. Recovery
+storage is required; generation fails before spending credits if it is unavailable.
+
+Existing installs must add this variable to their ignored watcher `.env`.
+The collection is created lazily; this change requires no Prisma migration or
+`db push`. See [Generation Recovery](architecture/GENERATION_RECOVERY.md) for
+retry and reconciliation procedures.
+
 ### Worldbuilder authentication
 
 Generate a secret and paste it into `apps/worldbuilder/.env`:

@@ -1,3 +1,4 @@
+import { settleGeneration } from '../services/generation-recovery.js';
 import type { FastifyInstance } from 'fastify';
 import { cropImageByNormalizedBounds } from '@talespin/cdn';
 import {
@@ -137,6 +138,11 @@ const generateFactions = async (
   const schema = GeneratedFactionBatchSchema.refine(
     (result) => result.factions.length === count,
     `Generate exactly ${count} factions`,
+  ).refine(
+    (result) =>
+      new Set(result.factions.map((faction) => faction.key)).size ===
+      result.factions.length,
+    'Faction keys must be unique',
   );
   const prompt = await generateWorldFactionsPrompt.format({
     factionCount: count,
@@ -189,6 +195,11 @@ const generateMapAndRegions = async (
   const visualPlanSchema = RegionVisualPlanSchema.refine(
     (result) => result.regions.length === regionCount,
     `Identify exactly ${regionCount} regions`,
+  ).refine(
+    (result) =>
+      new Set(result.regions.map((region) => region.key)).size ===
+      result.regions.length,
+    'Region keys must be unique',
   );
   const planPrompt = await planMapRegionsPrompt.format({
     regionCount,
@@ -275,11 +286,24 @@ const generateCharacters = async (
   const batches = await mapWithConcurrency(
     factions,
     TEXT_CONCURRENCY,
-    async (faction) => {
+    async (faction, factionIndex) => {
       const schema = GeneratedCharacterBatchSchema.refine(
         (result) => result.characters.length === charactersPerFaction,
         `Generate exactly ${charactersPerFaction} characters`,
-      );
+      )
+        .refine(
+          (result) =>
+            result.characters.every(
+              (character) => character.factionKey === faction.key,
+            ),
+          'Characters must retain the required faction key',
+        )
+        .refine(
+          (result) =>
+            new Set(result.characters.map((character) => character.key))
+              .size === result.characters.length,
+          'Character keys must be unique within a faction',
+        );
       const prompt = await generateFactionCharactersPrompt.format({
         characterCount: charactersPerFaction,
         worldContext: contextForPrompt(context),
@@ -301,7 +325,10 @@ const generateCharacters = async (
           );
         }
       });
-      return characters;
+      return characters.map((character) => ({
+        ...character,
+        key: `faction-${factionIndex}-${character.key}`,
+      }));
     },
   );
 
@@ -318,7 +345,18 @@ const assignFactions = async (
   const schema = GeneratedRegionAssignmentBatchSchema.refine(
     (result) => result.assignments.length === regions.length,
     'Return exactly one assignment for every region',
-  );
+  ).refine((result) => {
+    const keys = result.assignments.map((assignment) => assignment.regionKey);
+    return (
+      new Set(keys).size === regions.length &&
+      keys.every((key) => regions.some((region) => region.key === key)) &&
+      result.assignments.every((assignment) =>
+        assignment.factions.every((presence) =>
+          factions.some((faction) => faction.key === presence.factionKey),
+        ),
+      )
+    );
+  }, 'Assignments must reference each region once and only known factions');
   const prompt = await assignWorldFactionsPrompt.format({
     worldContext: contextForPrompt(context),
     regions: JSON.stringify(regions, null, 2),
@@ -342,25 +380,16 @@ const generateFactionImages = async (
 ) => {
   const worldSlug = slugify(context.name);
   return mapWithConcurrency(factions, IMAGE_CONCURRENCY, async (faction) => {
-    try {
-      const { url } = await fastify.imageGen.generateImageToCdn({
-        prompt: buildFactionImagePrompt(context, faction),
-        keyPrefix: `worlds/${worldSlug}/factions/${faction.key}/`,
-        purpose: 'faction',
-        size: '1024x1024',
-      });
-      return {
-        ...faction,
-        faction: { ...faction.faction, previewUrl: url },
-      };
-    } catch (error) {
-      fastify.log.warn({
-        msg: 'Faction image generation failed; keeping text content',
-        factionKey: faction.key,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      });
-      return faction;
-    }
+    const { url } = await fastify.imageGen.generateImageToCdn({
+      prompt: buildFactionImagePrompt(context, faction),
+      keyPrefix: `worlds/${worldSlug}/factions/${faction.key}/`,
+      purpose: 'faction',
+      size: '1024x1024',
+    });
+    return {
+      ...faction,
+      faction: { ...faction.faction, previewUrl: url },
+    };
   });
 };
 
@@ -384,22 +413,13 @@ const generateCharacterImages = async (
           `Character ${character.key} references missing faction ${character.factionKey}`,
         );
       }
-      try {
-        const { url } = await fastify.imageGen.generateImageToCdn({
-          prompt: buildCharacterImagePrompt(context, character, faction),
-          keyPrefix: `worlds/${worldSlug}/characters/${character.key}/`,
-          purpose: 'character',
-          size: '1024x1024',
-        });
-        return { ...character, previewUrl: url };
-      } catch (error) {
-        fastify.log.warn({
-          msg: 'Character image generation failed; keeping text content',
-          characterKey: character.key,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
-        return character;
-      }
+      const { url } = await fastify.imageGen.generateImageToCdn({
+        prompt: buildCharacterImagePrompt(context, character, faction),
+        keyPrefix: `worlds/${worldSlug}/characters/${character.key}/`,
+        purpose: 'character',
+        size: '1024x1024',
+      });
+      return { ...character, previewUrl: url };
     },
   );
 };
@@ -410,10 +430,11 @@ export const createWorldBlueprintFunction =
     const seed = WorldCreationSeedSchema.parse(input);
     const context = await enhanceWorld(seed);
 
-    const [{ mapImageUrl, regions }, generatedFactions] = await Promise.all([
-      generateMapAndRegions(fastify, context, seed.regionCount),
-      generateFactions(context, seed.factionCount),
-    ]);
+    const [{ mapImageUrl, regions }, generatedFactions] =
+      await settleGeneration([
+        generateMapAndRegions(fastify, context, seed.regionCount),
+        generateFactions(context, seed.factionCount),
+      ]);
 
     const generatedCharactersPromise = generateCharacters(
       context,
@@ -434,7 +455,7 @@ export const createWorldBlueprintFunction =
       generateCharacterImages(fastify, context, characters, generatedFactions),
     );
 
-    const [assignments, factions, characters] = await Promise.all([
+    const [assignments, factions, characters] = await settleGeneration([
       assignmentsPromise,
       factionsPromise,
       charactersPromise,

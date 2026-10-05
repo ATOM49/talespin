@@ -9,18 +9,27 @@ export const mapWithConcurrency = async <T, R>(
 
   const results = new Array<R>(items.length);
   let nextIndex = 0;
+  let stopped = false;
 
   const runWorker = async () => {
-    while (nextIndex < items.length) {
+    while (!stopped && nextIndex < items.length) {
       const index = nextIndex;
       nextIndex += 1;
-      results[index] = await worker(items[index]!, index);
+      try {
+        results[index] = await worker(items[index]!, index);
+      } catch (error) {
+        stopped = true;
+        throw error;
+      }
     }
   };
 
-  await Promise.all(
+  // Wait for sibling work to checkpoint before reporting a failure.
+  const settled = await Promise.allSettled(
     Array.from({ length: Math.min(limit, items.length) }, () => runWorker()),
   );
+  const failed = settled.find((result) => result.status === 'rejected');
+  if (failed?.status === 'rejected') throw failed.reason;
 
   return results;
 };

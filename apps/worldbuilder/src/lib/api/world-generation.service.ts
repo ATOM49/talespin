@@ -14,7 +14,7 @@ import {
   DEFAULT_GRID_WIDTH,
   type GridCellTemplate,
 } from './grid.service';
-import { watcherHeaders } from './watcher-client';
+import { WatcherClient, WatcherError } from './watcher-client';
 
 type GenerationOptions = {
   watcherBaseUrl?: string;
@@ -207,7 +207,7 @@ export class WorldGenerationService {
       }
 
       if (!blueprint) {
-        blueprint = await this.requestBlueprint(seed);
+        blueprint = await this.requestBlueprint(seed, jobId);
       }
       this.validateBlueprint(seed, blueprint);
 
@@ -233,60 +233,20 @@ export class WorldGenerationService {
 
   private async requestBlueprint(
     seed: ParsedWorldCreationSeed,
+    generationId: string,
   ): Promise<WorldBlueprint> {
-    const controller = new AbortController();
-    const timeout = setTimeout(
-      () => controller.abort(),
-      this.generationTimeout,
-    );
-
     try {
-      const response = await fetch(
-        `${this.watcherBaseUrl}/generate/world-blueprint`,
-        {
-          method: 'POST',
-          headers: watcherHeaders(),
-          body: JSON.stringify(seed),
-          signal: controller.signal,
-        },
-      );
-
-      if (!response.ok) {
-        const details = await response.text();
-        throw new ApiError(502, 'World blueprint generation failed', {
-          watcherStatus: response.status,
-          details,
-        });
-      }
-
-      let payload: unknown;
-      try {
-        payload = await response.json();
-      } catch {
-        throw new ApiError(
-          502,
-          'World blueprint generator returned invalid JSON',
-        );
-      }
-
-      const parsed = WorldBlueprintSchema.safeParse(payload);
-      if (!parsed.success) {
-        throw new ApiError(502, 'World blueprint failed validation', {
-          issues: parsed.error.issues,
-        });
-      }
-
-      return parsed.data;
+      return await new WatcherClient({
+        baseUrl: this.watcherBaseUrl,
+        timeoutMs: this.generationTimeout,
+      }).request('/generate/world-blueprint', seed, { generationId });
     } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new ApiError(504, 'World blueprint generation timed out');
-      }
-      throw new ApiError(502, 'Unable to reach the world blueprint generator');
-    } finally {
-      clearTimeout(timeout);
+      throw new ApiError(
+        error instanceof WatcherError && error.status === 504 ? 504 : 502,
+        error instanceof Error
+          ? error.message
+          : 'World blueprint generation failed',
+      );
     }
   }
 

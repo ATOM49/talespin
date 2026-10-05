@@ -5,7 +5,7 @@
 **Talespin** is a generative text game worldbuilding platform composed of three main components:
 
 - **`worldbuilder`** (Next.js 15 + React 19): Frontend UI for creating/managing worlds, regions, locations, entities, and campaigns with AI-assisted map generation
-- **`watcher`** (Fastify): Backend API service handling image generation via DALL-E and data validation
+- **`watcher`** (Fastify): Generation service owning prompts, typed proposals, media coordination, and infrastructure checkpoints
 - **`@talespin/schema`** (Vite): Shared Zod schemas consumed by both apps for type safety and form rendering
 
 ## Architecture
@@ -192,7 +192,7 @@ const imageUrl = await new ImageGenerationService().generateImageUrl(
   worldData,
   WorldFormSchema,
 );
-// Calls watcher API, handles retries + timeouts
+// Uses the typed watcher client; durable jobs own retries
 ```
 
 ### 8. Coordinate System

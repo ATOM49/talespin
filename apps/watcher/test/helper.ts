@@ -20,6 +20,7 @@ Object.assign(process.env, {
   AI_IMAGE_PROVIDER: 'openai',
   AI_IMAGE_EDIT_PROVIDER: 'openai',
   OPENAI_API_KEY: 'test-openai-key',
+  WATCHER_GENERATION_DATABASE_URL: 'mongodb://localhost:27017/talespin-test',
 });
 
 // Fill in this config with all the configurations

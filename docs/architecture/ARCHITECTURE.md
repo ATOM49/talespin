@@ -25,7 +25,7 @@ MongoDB
 packages/schema is shared across both applications.
 ```
 
-`apps/worldbuilder/src/lib/api/` contains service and DTO mapping logic. `apps/watcher` owns generation routes, prompts, and LangChain runnable composition. `packages/ai` contains provider-facing primitives, not an agent graph. Prisma persistence remains inside worldbuilder.
+`apps/worldbuilder/src/lib/api/` contains service and DTO mapping logic. `apps/watcher` owns generation routes, prompts, and LangChain runnable composition. `packages/ai` contains provider-facing primitives, not an agent graph. Authoritative Prisma persistence remains inside worldbuilder. Watcher separately owns the infrastructure-only `GenerationCheckpoint` collection; it cannot mutate world or Story state.
 
 The streamlined world-creation workflow is a concrete orchestration inside watcher: it enriches one seed, generates a map and factions in parallel, analyzes deterministic map cut-outs into regions, generates faction-grounded characters, then joins regions and factions through validated assignments. Watcher returns a typed proposal; worldbuilder validates references and persists the authoritative package.
 
@@ -47,6 +47,19 @@ persists accepted state transitions and ordered history.
 ## Local Runtime
 
 The supported local stack uses Node 20.19.0, pnpm 10.13.1, Docker Compose, a single-node MongoDB replica set, and MinIO. Shared workspace packages publish local `dist` exports consumed by both apps, so they must be built after a fresh install. Environment templates live beside each app; the authoritative commands and provider choices are documented in [`../LOCAL_DEVELOPMENT.md`](../LOCAL_DEVELOPMENT.md).
+
+## Generation Recovery and Transport
+
+`@talespin/schema` is the canonical domain and wire-contract boundary.
+Worldbuilder calls watcher through a typed, server-only client. Watcher validates requests and responses against that same
+endpoint registry, including distinct character synthesis and gallery endpoints.
+
+Watcher checkpoints validated text/vision stages and each media operation in
+MongoDB. Stable generation IDs survive application retries; fingerprints include
+model, prompt, schema, and parameters. Segmind image jobs use asynchronous v2
+submission, persist their request IDs before polling, and resume those IDs after
+poll/download/upload failures. Only confirmed failed inference is replaced.
+See [Generation Recovery](GENERATION_RECOVERY.md).
 
 ## Generated Media Boundary
 

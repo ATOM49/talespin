@@ -190,3 +190,58 @@ describe('SegmindClient', () => {
     ).rejects.toThrow('Untrusted Segmind media URL');
   });
 });
+
+it('resumes an existing async request without a new submission', async () => {
+  const fetchMock = vi
+    .fn<typeof fetch>()
+    .mockResolvedValueOnce(Response.json({ status: 'COMPLETED' }))
+    .mockResolvedValueOnce(
+      Response.json({
+        status: 'COMPLETED',
+        output: 'https://images.segmind.com/existing.png',
+      }),
+    );
+  const client = new SegmindClient({ apiKey: 'test', fetch: fetchMock });
+  const result = await client.invokeV2(
+    'seedream-4.5',
+    {},
+    { requestId: 'existing-id' },
+  );
+  expect(result.requestId).toBe('existing-id');
+  expect(
+    fetchMock.mock.calls.every(([, init]) => init?.method !== 'POST'),
+  ).toBe(true);
+});
+
+it('persists an async request ID before polling or downloading', async () => {
+  const events: string[] = [];
+  const fetchMock = vi
+    .fn<typeof fetch>()
+    .mockImplementation(async (_url, init) => {
+      if (init?.method === 'POST') {
+        events.push('submit');
+        return Response.json({ request_id: 'persist-me', status: 'QUEUED' });
+      }
+      events.push('poll');
+      return Response.json({ status: 'COMPLETED' });
+    });
+  const client = new SegmindClient({ apiKey: 'test', fetch: fetchMock });
+  await client.invokeV2(
+    'seedream-4.5',
+    {},
+    {
+      beforeSubmit: async () => {
+        events.push('mark-submitting');
+      },
+      onSubmitted: async () => {
+        events.push('persist-id');
+      },
+    },
+  );
+  expect(events.slice(0, 4)).toEqual([
+    'mark-submitting',
+    'submit',
+    'persist-id',
+    'poll',
+  ]);
+});

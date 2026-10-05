@@ -15,7 +15,7 @@ import { prisma } from '@/lib/prisma';
 export type GenerationJobRunner = 'worker' | 'inline';
 
 export const generationJobRunner = (
-  env: NodeJS.ProcessEnv = process.env,
+  env: Record<string, string | undefined> = process.env,
 ): GenerationJobRunner => {
   const configured = env.GENERATION_JOB_RUNNER;
   if (configured === 'inline' || configured === 'worker') return configured;
