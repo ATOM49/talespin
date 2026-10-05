@@ -72,21 +72,22 @@ exports if you upgrade). Hobby is also limited to non-commercial use.
 
 All variables live on the one project; both services read the ones they need.
 
-| Variable                                                              | Used by | Value                                                                      |
-| --------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------- |
-| `DATABASE_URL`                                                        | web     | MongoDB connection string                                                  |
-| `NEXTAUTH_SECRET`                                                     | web     | Random 32+ byte secret                                                     |
-| `AUTH_URL`                                                            | web     | Public origin, e.g. `https://talespin.vercel.app` (Production only)        |
-| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`                            | web     | Google OAuth client; callback `https://<origin>/api/auth/callback/google`  |
-| `FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET`                        | web     | Facebook OAuth app; callback `https://<origin>/api/auth/callback/facebook` |
-| `WATCHER_API_URL`                                                     | web     | `https://<production-domain>/_watcher`                                     |
-| `WATCHER_GENERATION_TIMEOUT_MS`                                       | web     | `240000` on Hobby                                                          |
-| `CRON_SECRET`                                                         | web     | Random secret; Vercel sends it to the cron route                           |
-| `WATCHER_API_KEY`                                                     | both    | Random secret; the watcher refuses to start without it in production       |
-| `MINIO_PUBLIC_BASE_URL` or `MINIO_PUBLIC_HOST` + `MINIO_BUCKET`       | both    | Public image origin                                                        |
-| `OPENAI_API_KEY`, `SEGMIND_API_KEY`, `AI_*_PROVIDER`, model overrides | watcher | As in `apps/watcher/.env.example`                                          |
-| `MINIO_ENDPOINT`, `MINIO_PORT`, `MINIO_USE_SSL`, `MINIO_REGION`       | watcher | Storage API endpoint                                                       |
-| `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`                                | watcher | Storage credentials                                                        |
+| Variable                                                              | Used by | Value                                                                                                                          |
+| --------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `DATABASE_URL`                                                        | web     | MongoDB connection string                                                                                                      |
+| `NEXTAUTH_SECRET`                                                     | web     | Random 32+ byte secret                                                                                                         |
+| `AUTH_URL`                                                            | web     | Public origin, e.g. `https://talespin.vercel.app` (Production only)                                                            |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`                            | web     | Google OAuth client; callback `https://<origin>/api/auth/callback/google`                                                      |
+| `FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET`                        | web     | Facebook OAuth app; callback `https://<origin>/api/auth/callback/facebook`                                                     |
+| `WATCHER_API_URL`                                                     | web     | `https://<production-domain>/_watcher`                                                                                         |
+| `WATCHER_GENERATION_TIMEOUT_MS`                                       | web     | `240000` on Hobby                                                                                                              |
+| `CRON_SECRET`                                                         | web     | Random secret; Vercel sends it to the cron route                                                                               |
+| `WATCHER_API_KEY`                                                     | both    | Random secret; the watcher refuses to start without it in production                                                           |
+| `MINIO_PUBLIC_BASE_URL` or `MINIO_PUBLIC_HOST` + `MINIO_BUCKET`       | both    | Public image origin                                                                                                            |
+| `WATCHER_GENERATION_DATABASE_URL`                                     | watcher | MongoDB connection string for generation recovery (can be the same as `DATABASE_URL`); the watcher refuses to start without it |
+| `OPENAI_API_KEY`, `SEGMIND_API_KEY`, `AI_*_PROVIDER`, model overrides | watcher | As in `apps/watcher/.env.example`                                                                                              |
+| `MINIO_ENDPOINT`, `MINIO_PORT`, `MINIO_USE_SSL`, `MINIO_REGION`       | watcher | Storage API endpoint                                                                                                           |
+| `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`                                | watcher | Storage credentials                                                                                                            |
 
 Both OAuth providers are required at runtime; `E2E_TEST_MODE` is ignored in
 production. `next/image` only optimizes images from the configured public
