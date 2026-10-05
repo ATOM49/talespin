@@ -6,7 +6,7 @@ import {
   WorldLoreSchema,
   type World,
   type WorldForm,
-} from '@talespin/schema';
+} from '@talespin/models';
 import { WorldQueryParamsSchema } from './types';
 import { ImageGenerationService } from './ai-image.service';
 import { GridService } from './grid.service';

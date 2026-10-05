@@ -15,6 +15,7 @@ export * from './region.js';
 export * from './story.js';
 export * from './travel.js';
 export * from './narrative.js';
+export * from './generation.js';
 
 // Treasure Hunt Schemas
 export * from './player.js';

@@ -9,7 +9,7 @@ import type {
   Region,
   World,
   WorldGrid,
-} from '@talespin/schema';
+} from '@talespin/models';
 
 import type { GridCellVisual } from '@/components/FabricGrid/types';
 import GridCellFormComponent from '@/components/form/grid-cell';

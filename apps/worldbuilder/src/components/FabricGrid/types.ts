@@ -6,7 +6,7 @@ import type {
   GridConfig,
   GridCellMetadata as BaseGridCellMetadata,
   RegionSelection,
-} from '@talespin/schema';
+} from '@talespin/models';
 
 // Export schema types
 export type { GridConfig, RegionSelection };

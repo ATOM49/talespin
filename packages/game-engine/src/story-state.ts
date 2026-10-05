@@ -2,7 +2,7 @@ import type {
   InteractionKind,
   MissionObjective,
   StoryStateChange,
-} from '@talespin/schema';
+} from '@talespin/models';
 
 export interface MutableStoryState {
   knownFacts: string[];

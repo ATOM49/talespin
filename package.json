@@ -10,7 +10,7 @@
     "test:world": "pnpm --filter @talespin/worldbuilder test",
     "dev:watcher": "pnpm --filter @talespin/watcher dev",
     "build:watcher": "pnpm --filter @talespin/watcher build:ts",
-    "build:schema": "pnpm --filter @talespin/schema build",
+    "build:schema": "pnpm build:models",
     "build:game-engine": "pnpm --filter @talespin/game-engine build",
     "build:ai": "pnpm --filter @talespin/ai build",
     "build:cdn": "pnpm --filter @talespin/cdn build",
@@ -25,7 +25,8 @@
     "clean": "rimraf packages/*/dist apps/*/dist apps/*/node_modules/.cache packages/*/node_modules/.cache apps/worldbuilder/.next",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "build:models": "pnpm --filter @talespin/models build"
   },
   "keywords": [],
   "author": "",

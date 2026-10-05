@@ -5,8 +5,8 @@
 #   docker build -f apps/watcher/Dockerfile -t talespin-watcher .
 #   docker run -p 4000:4000 --env-file apps/watcher/.env talespin-watcher
 #
-# The watcher has no request authentication; expose it only on a private
-# network reachable by worldbuilder and its workers.
+# Configure WATCHER_API_KEY and WATCHER_GENERATION_DATABASE_URL at runtime.
+# Generation requests require the shared secret in production.
 
 ARG NODE_IMAGE=node:20.19.0-bookworm-slim
 
@@ -32,7 +32,7 @@ RUN pnpm fetch --frozen-lockfile
 FROM deps AS build
 COPY . .
 RUN pnpm install --offline --frozen-lockfile --ignore-scripts
-RUN pnpm build:schema \
+RUN pnpm build:models \
   && pnpm build:ai \
   && pnpm build:cdn \
   && pnpm build:watcher
@@ -49,7 +49,7 @@ FROM base AS runtime
 ENV NODE_ENV=production \
     PORT=4000
 COPY --from=prod-deps /repo /repo
-COPY --from=build /repo/packages/schema/dist /repo/packages/schema/dist
+COPY --from=build /repo/packages/models/dist /repo/packages/models/dist
 COPY --from=build /repo/packages/ai/dist /repo/packages/ai/dist
 COPY --from=build /repo/packages/cdn/dist /repo/packages/cdn/dist
 COPY --from=build /repo/apps/watcher/dist /repo/apps/watcher/dist

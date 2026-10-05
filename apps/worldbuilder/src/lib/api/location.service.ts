@@ -4,7 +4,7 @@ import {
   LocationFormSchema,
   type Location,
   type LocationForm,
-} from '@talespin/schema';
+} from '@talespin/models';
 
 type PrismaLocation = {
   id: string;

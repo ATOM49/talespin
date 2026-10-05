@@ -18,6 +18,7 @@ export const SEGMIND_IMAGE_MODELS = {
 type SegmindImageModelOptions = {
   client: SegmindClient;
   model?: string;
+  version?: 'v1' | 'v2';
 };
 
 const toAspectRatio = (
@@ -107,14 +108,41 @@ const parseDataUrl = (
   return { body: Buffer.from(match[2], 'base64'), contentType: match[1] };
 };
 
+const parseAsyncImage = async (
+  client: SegmindClient,
+  response: SegmindModelResponse,
+  input: ImageGenerationInput,
+  model: string,
+): Promise<GeneratedImage> => {
+  if (response.version !== 'v2')
+    throw new Error('Expected async Segmind image result');
+  const embedded = parseDataUrl(response.response);
+  const imageUrl = findImageUrl(response.response);
+  if (!embedded && !imageUrl)
+    throw new Error(`Segmind model "${model}" returned no image URL`);
+  const media = embedded ?? (await client.downloadMedia(imageUrl!));
+  return {
+    imageBuffer: media.body,
+    contentType: media.contentType,
+    providerMeta: {
+      provider: 'segmind',
+      model,
+      requestId: response.requestId,
+      size: input.size,
+    },
+  };
+};
+
 export const createNanoBananaProImageModel = ({
   client,
   model = SEGMIND_IMAGE_MODELS.map,
+  version = 'v1',
 }: SegmindImageModelOptions): ImageGenerationModel =>
   new SegmindModelEndpoint<ImageGenerationInput, GeneratedImage>({
     client,
     model,
-    version: 'v1',
+    version,
+    recovery: (input) => ({ ...input.recovery, submitMaxRetries: 0 }),
     v1ResponseType: 'binary',
     buildRequest: (input) => ({
       prompt: input.prompt,
@@ -125,17 +153,21 @@ export const createNanoBananaProImageModel = ({
       web_search: false,
     }),
     parseResponse: (response, input) =>
-      parseBinaryImage(response, input, model),
+      response.version === 'v2'
+        ? parseAsyncImage(client, response, input, model)
+        : parseBinaryImage(response, input, model),
   });
 
 export const createSeedreamImageModel = ({
   client,
   model = SEGMIND_IMAGE_MODELS.character,
+  version = 'v1',
 }: SegmindImageModelOptions): ImageGenerationModel =>
   new SegmindModelEndpoint<ImageGenerationInput, GeneratedImage>({
     client,
     model,
-    version: 'v1',
+    version,
+    recovery: (input) => ({ ...input.recovery, submitMaxRetries: 0 }),
     v1ResponseType: 'binary',
     buildRequest: (input) => ({
       prompt: input.prompt,
@@ -145,17 +177,21 @@ export const createSeedreamImageModel = ({
       sequential_image_generation: 'disabled',
     }),
     parseResponse: (response, input) =>
-      parseBinaryImage(response, input, model),
+      response.version === 'v2'
+        ? parseAsyncImage(client, response, input, model)
+        : parseBinaryImage(response, input, model),
   });
 
 export const createIdeogramImageModel = ({
   client,
   model = SEGMIND_IMAGE_MODELS.faction,
+  version = 'v1',
 }: SegmindImageModelOptions): ImageGenerationModel =>
   new SegmindModelEndpoint<ImageGenerationInput, GeneratedImage>({
     client,
     model,
-    version: 'v1',
+    version,
+    recovery: (input) => ({ ...input.recovery, submitMaxRetries: 0 }),
     v1ResponseType: 'json',
     buildRequest: (input) => ({
       prompt: input.prompt,
@@ -169,6 +205,8 @@ export const createIdeogramImageModel = ({
       enable_safety_checker: true,
     }),
     parseResponse: async (response, input) => {
+      if (response.version === 'v2')
+        return parseAsyncImage(client, response, input, model);
       if (response.version !== 'v1' || response.response.kind !== 'json') {
         throw new Error(`Segmind model "${model}" did not return JSON`);
       }

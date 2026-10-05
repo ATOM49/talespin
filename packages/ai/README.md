@@ -75,7 +75,7 @@ console.log(result.providerMeta);
 
 ```typescript
 import { OpenAIStructuredOutputRunnable } from '@talespin/ai';
-import { WorldFormSchema, CharacterFormSchema } from '@talespin/schema';
+import { WorldFormSchema, CharacterFormSchema } from '@talespin/models';
 
 const runnable = new OpenAIStructuredOutputRunnable();
 

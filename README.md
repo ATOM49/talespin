@@ -8,7 +8,7 @@ Talespin is a collaborative worldbuilding application for creating persistent wo
 | ------------------- | ------------------------------------------------------------------------------- |
 | `apps/worldbuilder` | Next.js UI, authentication, API routes, Prisma, and MongoDB persistence         |
 | `apps/watcher`      | Fastify generation service, prompts, image/text providers, and CDN coordination |
-| `packages/schema`   | Canonical Zod contracts and inferred TypeScript types                           |
+| `packages/models`   | Canonical Zod contracts and inferred TypeScript types                           |
 | `packages/ai`       | Reusable OpenAI and Segmind provider adapters                                   |
 | `packages/cdn`      | MinIO storage and Sharp image utilities                                         |
 
@@ -43,7 +43,7 @@ catch (error) {
 Build workspace dependencies and initialize Prisma:
 
 ```bash
-pnpm build:schema
+pnpm build:models
 pnpm build:game-engine
 pnpm build:ai
 pnpm build:cdn
@@ -82,7 +82,7 @@ pnpm exec playwright test e2e/story-game-loop.spec.ts # fixture Story browser fl
 pnpm test:e2e:local                       # paid-provider browser flow
 ```
 
-When changing `packages/schema`, `packages/game-engine`, `packages/ai`, or
+When changing `packages/models`, `packages/game-engine`, `packages/ai`, or
 `packages/cdn`, rebuild that package before running a consuming application.
 
 ## Documentation

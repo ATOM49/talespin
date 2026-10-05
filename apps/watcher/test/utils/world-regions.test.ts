@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import type { RegionVisualSeed } from '@talespin/schema';
+import type { RegionVisualSeed } from '@talespin/models';
 import {
   assertCompleteRegionCoverage,
   partitionGridByAnchors,

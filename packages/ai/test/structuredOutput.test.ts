@@ -9,7 +9,7 @@ import {
   type CharacterForm,
   type FactionForm,
   type LocationForm,
-} from '@talespin/schema';
+} from '@talespin/models';
 import { z } from 'zod';
 
 describe('OpenAIStructuredOutputRunnable', () => {

@@ -43,6 +43,20 @@ AI_IMAGE_EDIT_PROVIDER=openai
 
 Keep the model and MinIO defaults from `apps/watcher/.env.example`. Both API keys are required for the complete mixed-provider workflow. To use OpenAI for all image generation, set `AI_IMAGE_PROVIDER=openai`; `OPENAI_API_KEY` is then the only provider credential required.
 
+### Watcher recovery storage
+
+Set `WATCHER_GENERATION_DATABASE_URL=mongodb://localhost:27017/talespin` in
+`apps/watcher/.env` (included in the template). Watcher uses only the
+`GenerationCheckpoint` collection for infrastructure results and provider
+request IDs. Production credentials should be scoped to that collection.
+For containers, use the reachable MongoDB hostname in this URL. Recovery
+storage is required; generation fails before spending credits if it is unavailable.
+
+Existing installs must add this variable to their ignored watcher `.env`.
+The collection is created lazily; this change requires no Prisma migration or
+`db push`. See [Generation Recovery](architecture/GENERATION_RECOVERY.md) for
+retry and reconciliation procedures.
+
 ### Worldbuilder authentication
 
 Generate a secret and paste it into `apps/worldbuilder/.env`:
@@ -106,7 +120,7 @@ The checked-in MinIO credentials are local development defaults: `minioadmin` / 
 Workspace consumers import built `dist` exports from the shared packages. Build them after a fresh install:
 
 ```bash
-pnpm build:schema
+pnpm build:models
 pnpm build:game-engine
 pnpm build:ai
 pnpm build:cdn
@@ -119,7 +133,7 @@ pnpm --filter @talespin/worldbuilder exec prisma generate
 pnpm --filter @talespin/worldbuilder exec prisma db push
 ```
 
-Repeat the relevant shared-package build after editing `packages/schema`,
+Repeat the relevant shared-package build after editing `packages/models`,
 `packages/game-engine`, `packages/ai`, or `packages/cdn`. After Prisma changes,
 run both Prisma commands again. Existing grids can receive traversal metadata
 without regeneration:
@@ -215,7 +229,7 @@ docker compose logs minio minio-setup
 
 ### A shared import cannot resolve `dist`
 
-Rebuild the owning package with `pnpm build:schema`,
+Rebuild the owning package with `pnpm build:models`,
 `pnpm build:game-engine`, `pnpm build:ai`, or `pnpm build:cdn`.
 
 ## Shutdown and Data

@@ -10,7 +10,7 @@ The product direction is a persistent generative narrative game in which an LLM 
 Story -> Chapter -> Mission -> Interaction
 ```
 
-This hierarchy is not implemented yet. Do not rename existing models to make it appear complete: `World` is a setting, `Campaign` is an early route/goal contract, `TreasureHuntRun` is a concrete gameplay-loop precedent, and `TreasureHuntEvent` is an event/interaction analogue.
+The explorer implements this hierarchy through durable jobs and deterministic rules. Preserve the distinct older concepts: `World` is a setting, `Campaign` is an early route/goal contract, `TreasureHuntRun` is a concrete gameplay-loop precedent, and `TreasureHuntEvent` is an event/interaction analogue.
 
 Read these before changing product or architecture boundaries:
 
@@ -27,12 +27,13 @@ Read these before changing product or architecture boundaries:
 ## Workspace Responsibilities
 
 - `apps/worldbuilder`: Next.js UI, authentication, API routes, Prisma services, and the current MongoDB persistence boundary.
-- `apps/watcher`: Fastify generation service; owns prompts, generation chains, request validation, and CDN coordination.
-- `packages/schema`: canonical Zod contracts and inferred TypeScript types.
+- `apps/watcher`: Fastify generation service; owns prompts, generation chains, request validation, CDN coordination, and infrastructure-only generation checkpoints.
+- `packages/models`: canonical Zod contracts and inferred TypeScript types.
+- `packages/game-engine`: pure Mission, outcome, objective, terrain, and travel rules.
 - `packages/ai`: low-level LangChain/OpenAI runnables. Keep product prompts and game rules out.
 - `packages/cdn`: MinIO and image-processing infrastructure.
 
-There is no standalone game-engine, agent-graph, or persistence package today. Add one only with working behavior and consumers, not as an empty architectural placeholder.
+`packages/game-engine` owns pure gameplay rules. There is no standalone agent-graph or persistence package; add one only with working behavior and consumers.
 
 ## Architecture Rules
 
@@ -45,7 +46,7 @@ LLM proposes -> Zod validates -> deterministic rules evaluate
 
 An LLM must not directly replace or mutate arbitrary authoritative state. Keep deterministic rules in TypeScript, persistence outside domain contracts, and prompts outside reusable provider adapters. If LangGraph is introduced, use it for orchestration and interrupt/resume flow, not as the domain model.
 
-When changing persistent gameplay behavior, check the shared schema, transition logic, orchestration, Prisma mapping, API authorization, and tests. Keep `packages/schema` free of React, Prisma, Fastify, LangChain, and provider dependencies.
+When changing persistent gameplay behavior, check the shared schema, transition logic, orchestration, Prisma mapping, API authorization, and tests. Keep `packages/models` free of React, Prisma, Fastify, LangChain, and provider dependencies.
 
 ## Build, Test, and Development
 
@@ -55,7 +56,7 @@ Use Node 20.19.0 (`.nvmrc`) and pnpm 10.13.1.
 - `pnpm install --frozen-lockfile`: install the pinned workspace dependency graph.
 - Copy both committed templates to ignored files: `apps/watcher/.env` and `apps/worldbuilder/.env`.
 - `docker compose up -d`: start MongoDB and MinIO. Initialize `rs0` once for each fresh Mongo volume as documented in `docs/LOCAL_DEVELOPMENT.md`.
-- Run `pnpm build:schema`, `pnpm build:ai`, and `pnpm build:cdn` after a fresh install because consumers import built `dist` exports.
+- Run `pnpm build:models`, `pnpm build:game-engine`, `pnpm build:ai`, and `pnpm build:cdn` after a fresh install because consumers import built `dist` exports.
 - Generate Prisma Client and apply schema/index changes with `pnpm --filter @talespin/worldbuilder exec prisma generate` and `pnpm --filter @talespin/worldbuilder exec prisma db push`.
 - `pnpm dev`: run worldbuilder on port 3000, the world-generation worker, and watcher on port 4000.
 - `pnpm build`: build shared packages and both apps.

@@ -1,12 +1,12 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import {
-  applyStoryStateChanges,
+  createChapterObjectives,
+  selectMissionDestination,
+  resolveInteractionOutcome,
   chooseTransport,
-  evaluateObjectives,
   fallbackTransportOptions,
   findTerrainRoute,
   normalizeTraversal,
-  requiredObjectivesComplete,
 } from '@talespin/game-engine';
 import {
   GeneratedInteractionProposalSchema,
@@ -14,7 +14,6 @@ import {
   InteractionTargetSchema,
   MissionObjectiveSchema,
   MissionSetupProposalSchema,
-  NarrativeGenerationResponseSchema,
   NarrativeJobSchema,
   PlayerActionSchema,
   StoryOutlineProposalSchema,
@@ -25,16 +24,14 @@ import {
   TraversalProfileSchema,
   type GridCell,
   type InteractionKind,
-  type InteractionOutcome,
-  type MissionObjective,
   type MissionSetupProposal,
   type NarrativeGenerationRequest,
   type NarrativeGenerationResponse,
   type NarrativeJob,
   type StoryOutlineProposal,
-} from '@talespin/schema';
+} from '@talespin/models';
 import { ApiError } from './errors';
-import { watcherHeaders } from './watcher-client';
+import { WatcherClient } from './watcher-client';
 
 const LEASE_MS = 5 * 60 * 1000;
 
@@ -253,7 +250,7 @@ export class NarrativeGenerationService {
         regionHooks: regions.flatMap((region) => region.missionHooks),
       },
     };
-    const response = await this.requestGeneration(request);
+    const response = await this.requestGeneration(request, jobId);
     if (response.kind !== 'OUTLINE')
       throw new Error('Watcher returned the wrong proposal kind.');
     const proposal = StoryOutlineProposalSchema.parse(response.proposal);
@@ -357,7 +354,7 @@ export class NarrativeGenerationService {
         consequences: storyState.consequences,
       },
     };
-    const response = await this.requestGeneration(request);
+    const response = await this.requestGeneration(request, jobId);
     if (response.kind !== 'MISSION_SETUP')
       throw new Error('Watcher returned the wrong proposal kind.');
     const proposal = MissionSetupProposalSchema.parse(response.proposal);
@@ -369,54 +366,20 @@ export class NarrativeGenerationService {
         })
       ).map((mission) => mission.destinationCellId),
     );
-    const destination = this.selectDestination(
+    const destination = selectMissionDestination(
       cells,
       startCellId,
       proposal.destinationHint,
       previousDestinations,
     );
     const route = findTerrainRoute(cells, startCellId, destination._id);
-    const waypointCellId =
-      route[Math.max(1, Math.floor(route.length / 2))] ?? destination._id;
-    const factKey = `chapter-${chapter.order}-discovery`;
-    const objectives: MissionObjective[] = [
-      {
-        id: `reach-${destination._id}`,
-        type: 'REACH_CELL',
-        label: `Reach ${destination.name ?? 'the mission destination'}`,
-        required: true,
-        complete: false,
-        cellId: destination._id,
-      },
-      {
-        id: `encounter-${chapter.id}`,
-        type: 'RESOLVE_INTERACTION',
-        label: 'Speak with a character who can set the chapter in motion',
-        required: true,
-        complete: false,
-        interactionKind: 'DIALOGUE',
-      },
-      {
-        id: `fact-${chapter.id}`,
-        type: 'LEARN_FACT',
-        label: 'Uncover the truth hidden in this chapter',
-        required: true,
-        complete: false,
-        factKey,
-      },
-      ...(chapter.order === 3
-        ? [
-            {
-              id: `finale-${chapter.id}`,
-              type: 'RESOLVE_INTERACTION' as const,
-              label: 'Resolve the final confrontation',
-              required: true,
-              complete: false,
-              interactionKind: 'FINALE' as const,
-            },
-          ]
-        : []),
-    ].map((objective) => MissionObjectiveSchema.parse(objective));
+    const { objectives, waypointCellId } = createChapterObjectives({
+      chapterId: chapter.id,
+      chapterOrder: chapter.order,
+      destinationCellId: destination._id,
+      destinationName: destination.name,
+      route,
+    });
 
     await this.prisma.$transaction(async (transaction) => {
       const existing = await transaction.mission.findFirst({
@@ -531,7 +494,7 @@ export class NarrativeGenerationService {
         knownFacts: storyState.knownFacts,
       },
     };
-    const response = await this.requestGeneration(request);
+    const response = await this.requestGeneration(request, jobId);
     if (response.kind !== 'INTERACTION')
       throw new Error('Watcher returned the wrong proposal kind.');
     const proposal = GeneratedInteractionProposalSchema.parse(
@@ -620,7 +583,7 @@ export class NarrativeGenerationService {
         situation: interaction.situation,
       },
     };
-    const response = await this.requestGeneration(request);
+    const response = await this.requestGeneration(request, jobId);
     if (response.kind !== 'TRANSPORT')
       throw new Error('Watcher returned the wrong proposal kind.');
     const proposed = TransportOptionsProposalSchema.parse(response.proposal);
@@ -680,7 +643,7 @@ export class NarrativeGenerationService {
         objectiveIds: objectives.map((objective) => objective.id),
       },
     };
-    const response = await this.requestGeneration(request);
+    const response = await this.requestGeneration(request, jobId);
     if (response.kind !== 'ACTION_RESOLUTION') {
       throw new Error('Watcher returned the wrong proposal kind.');
     }
@@ -707,68 +670,24 @@ export class NarrativeGenerationService {
       ]);
       return;
     }
-    // Model output may narrate progress, but objective completion is evaluated
-    // from authoritative position, interaction kind, facts, and inventory.
-    const completedObjectiveIds: string[] = [];
-    const target = InteractionTargetSchema.parse(interaction.target);
-    const allowedCharacterRefs =
-      target.type === 'WORLD_CHARACTER'
-        ? [target.characterId]
-        : target.type === 'STORY_CHARACTER'
-          ? [target.storyCharacterId]
-          : [];
-    const changes = proposed.stateChanges.filter(
-      (change) =>
-        change.type !== 'UPDATE_RELATIONSHIP' ||
-        allowedCharacterRefs.includes(change.characterRef),
-    );
-    for (const objective of objectives) {
-      if (
-        interaction.kind !== 'DISCOVERY' ||
-        objective.type !== 'LEARN_FACT' ||
-        objective.complete
-      )
-        continue;
-      if (
-        !changes.some(
-          (change) =>
-            change.type === 'DISCOVER_FACT' && change.key === objective.factKey,
-        )
-      ) {
-        changes.push({
-          type: 'DISCOVER_FACT',
-          key: objective.factKey,
-          summary: `A truth uncovered during ${interaction.mission.chapter.title}.`,
-        });
-      }
-    }
-    const outcome: InteractionOutcome = {
-      ...proposed,
-      stateChanges: changes,
-      completedObjectiveIds,
-    };
-    const currentState = StoryStateSchema.parse(
-      interaction.mission.story.state,
-    );
-    const nextState = applyStoryStateChanges(currentState, changes, {
-      allowedCharacterRefs,
-    });
-    const nextObjectives = evaluateObjectives({
+    const actionsUsed = interaction.mission.actionsUsed + 1;
+    const transition = resolveInteractionOutcome({
+      proposed,
+      target: InteractionTargetSchema.parse(interaction.target),
+      kind: interaction.kind,
+      chapterTitle: interaction.mission.chapter.title,
+      state: StoryStateSchema.parse(interaction.mission.story.state),
       objectives,
       currentCellId: interaction.mission.currentCellId,
-      resolvedInteractionKind: interaction.kind,
-      knownFacts: nextState.knownFacts,
-      inventoryItemKeys: nextState.inventory.map((item) => item.key),
-      usedItemKeys: nextState.usedItemKeys,
-      completedObjectiveIds,
+      destinationCellId: interaction.mission.destinationCellId,
+      actionsUsed,
+      maxActions: interaction.mission.maxActions,
     });
-    const actionsUsed = interaction.mission.actionsUsed + 1;
-    const missionComplete =
-      interaction.mission.currentCellId ===
-        interaction.mission.destinationCellId &&
-      requiredObjectivesComplete(nextObjectives);
-    const missionFailed =
-      !missionComplete && actionsUsed >= interaction.mission.maxActions;
+    const outcome = transition.outcome;
+    const nextState = transition.state;
+    const nextObjectives = transition.objectives;
+    const missionComplete = transition.complete;
+    const missionFailed = transition.failed;
     const endedAt = missionComplete || missionFailed ? new Date() : null;
 
     await this.prisma.$transaction(async (transaction) => {
@@ -871,80 +790,16 @@ export class NarrativeGenerationService {
     });
   }
 
-  private selectDestination(
-    cells: GridCell[],
-    startCellId: string,
-    hint: string,
-    excluded: Set<string>,
-  ): GridCell {
-    const terms = hint
-      .toLowerCase()
-      .split(/\W+/)
-      .filter((term) => term.length > 3);
-    const candidates = cells.filter(
-      (cell) => cell._id !== startCellId && !excluded.has(cell._id),
-    );
-    const matching = candidates.filter((cell) => {
-      const source = [cell.name, cell.biome, ...cell.tags]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase();
-      return terms.some((term) => source.includes(term));
-    });
-    const rankReachable = (pool: GridCell[]) =>
-      pool.flatMap((cell) => {
-        try {
-          return [
-            {
-              cell,
-              route: findTerrainRoute(cells, startCellId, cell._id),
-            },
-          ];
-        } catch {
-          return [];
-        }
-      });
-    const byDistance = (
-      left: { route: string[] },
-      right: { route: string[] },
-    ) => right.route.length - left.route.length;
-    const narrativeMatches = rankReachable(matching).sort(byDistance);
-    const fallback = rankReachable(candidates).sort(byDistance);
-    const destination = (narrativeMatches[0] ?? fallback[0])?.cell;
-    if (!destination) throw new Error('No destination cell is available.');
-    return destination;
-  }
-
   private async requestGeneration(
     request: NarrativeGenerationRequest,
+    generationId: string,
   ): Promise<NarrativeGenerationResponse> {
     if (process.env.E2E_TEST_MODE === 'true')
       return this.fixtureResponse(request);
-    const controller = new AbortController();
-    const timeout = setTimeout(
-      () => controller.abort(),
-      this.generationTimeout,
-    );
-    try {
-      const response = await fetch(
-        `${this.watcherBaseUrl}/generate/narrative`,
-        {
-          method: 'POST',
-          headers: watcherHeaders(),
-          body: JSON.stringify(request),
-          signal: controller.signal,
-        },
-      );
-      if (!response.ok) {
-        throw new ApiError(502, 'Narrative generation failed', {
-          watcherStatus: response.status,
-          details: await response.text(),
-        });
-      }
-      return NarrativeGenerationResponseSchema.parse(await response.json());
-    } finally {
-      clearTimeout(timeout);
-    }
+    return new WatcherClient({
+      baseUrl: this.watcherBaseUrl,
+      timeoutMs: this.generationTimeout,
+    }).request('/generate/narrative', request, { generationId });
   }
 
   private fixtureResponse(

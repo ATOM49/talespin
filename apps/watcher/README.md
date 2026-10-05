@@ -43,7 +43,7 @@ Read [Generated Art Direction](../../docs/architecture/GENERATED_ART.md) before 
 Build shared consumers first, then start watcher:
 
 ```bash
-pnpm build:schema
+pnpm build:models
 pnpm build:ai
 pnpm build:cdn
 pnpm dev:watcher
@@ -64,10 +64,10 @@ Generated media is uploaded to MinIO. Cache identity includes provider, model, p
 
 ## Shared Schemas
 
-Use contracts from `@talespin/schema` and parse model output before returning it or crossing another trust boundary. After schema changes:
+Use contracts from `@talespin/models` and parse model output before returning it or crossing another trust boundary. After schema changes:
 
 ```bash
-pnpm build:schema
+pnpm build:models
 pnpm build:watcher
 ```
 
@@ -80,3 +80,17 @@ pnpm lint
 ```
 
 Prompt regression tests live under `apps/watcher/test/prompts/`. Keep pure prompt composers separate from provider-bound chains so tests do not require AI credentials.
+
+## Durable recovery
+
+Set `WATCHER_GENERATION_DATABASE_URL` as described in the
+[local runbook](../../docs/LOCAL_DEVELOPMENT.md). Watcher stores infrastructure
+checkpoints in MongoDB, reuses validated text/vision outputs and finished media,
+and resumes Segmind v2 jobs by request ID. Failed required artwork leaves a
+world job retryable instead of completing a world with missing assets.
+
+`POST /generate/character` synthesizes profile and artwork;
+`POST /generate/character-gallery` renders an existing character brief.
+The endpoint registry lives in `@talespin/models`.
+See [Generation Recovery](../../docs/architecture/GENERATION_RECOVERY.md) for
+leases, partial failures, and operator reconciliation.

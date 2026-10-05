@@ -51,7 +51,7 @@ ARG MINIO_BUCKET
 ARG NEXT_PUBLIC_COPILOT_CLOUD_PUBLIC_API_KEY=
 COPY . .
 RUN pnpm install --offline --frozen-lockfile --ignore-scripts
-RUN pnpm build:schema \
+RUN pnpm build:models \
   && pnpm build:game-engine \
   && pnpm --filter @talespin/worldbuilder exec prisma generate \
   && pnpm build:world
@@ -74,7 +74,7 @@ ENV NODE_ENV=production \
     MINIO_PUBLIC_HOST=${MINIO_PUBLIC_HOST} \
     MINIO_BUCKET=${MINIO_BUCKET}
 COPY --from=prod-deps /repo /repo
-COPY --from=build /repo/packages/schema/dist /repo/packages/schema/dist
+COPY --from=build /repo/packages/models/dist /repo/packages/models/dist
 COPY --from=build /repo/packages/game-engine/dist /repo/packages/game-engine/dist
 COPY --from=build --chown=node:node /repo/apps/worldbuilder/.next /repo/apps/worldbuilder/.next
 WORKDIR /repo/apps/worldbuilder

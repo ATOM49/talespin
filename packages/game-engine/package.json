@@ -17,7 +17,7 @@
     "test": "pnpm build && node --test test/*.test.mjs"
   },
   "dependencies": {
-    "@talespin/schema": "workspace:*"
+    "@talespin/models": "workspace:*"
   },
   "devDependencies": {
     "vite": "^7.0.4",

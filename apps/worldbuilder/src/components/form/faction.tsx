@@ -2,7 +2,7 @@
 import { ZodProvider } from '@autoform/zod';
 import { AutoForm } from '../ui/autoform';
 import { useApiMutation } from '@/hooks/useApiQuery';
-import { Faction, FactionFormSchema } from '@talespin/schema';
+import { Faction, FactionFormSchema } from '@talespin/models';
 import { useQueryClient } from '@tanstack/react-query';
 
 interface FactionFormComponentProps {

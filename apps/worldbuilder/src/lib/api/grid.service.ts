@@ -6,7 +6,7 @@ import {
   type GridCell,
   type TraversalProfile,
   type WorldGrid,
-} from '@talespin/schema';
+} from '@talespin/models';
 
 export const DEFAULT_GRID_WIDTH = 8;
 export const DEFAULT_GRID_HEIGHT = 8;

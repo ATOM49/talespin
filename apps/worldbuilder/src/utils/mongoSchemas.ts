@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { GridConfigSchema, GridCellMetadataSchema } from '@talespin/schema';
+import { GridConfigSchema, GridCellMetadataSchema } from '@talespin/models';
 
 // MongoDB-specific document schemas extending base schemas
 export const GridCellDocumentSchema = GridCellMetadataSchema.pick({

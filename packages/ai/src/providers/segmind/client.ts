@@ -78,6 +78,9 @@ export type SegmindV1InvocationOptions = {
 };
 
 export type SegmindV2InvocationOptions = {
+  requestId?: string;
+  beforeSubmit?: () => Promise<void>;
+  onSubmitted?: (requestId: string) => Promise<void>;
   pollIntervalMs?: number;
   timeoutMs?: number;
   submitMaxRetries?: number;
@@ -86,7 +89,7 @@ export type SegmindV2InvocationOptions = {
 const DEFAULT_BASE_URL = 'https://api.segmind.com';
 const DEFAULT_POLL_INTERVAL_MS = 1_000;
 const DEFAULT_TIMEOUT_MS = 600_000;
-const DEFAULT_SUBMIT_MAX_RETRIES = 1;
+const DEFAULT_SUBMIT_MAX_RETRIES = 0;
 const MODEL_SLUG_PATTERN = /^[A-Za-z0-9._-]+$/;
 const REQUEST_ID_PATTERN = /^[A-Za-z0-9._-]+$/;
 
@@ -281,11 +284,19 @@ export class SegmindClient {
   ): Promise<SegmindAsyncInvocationResult<T>> {
     const timeoutMs = options.timeoutMs ?? this.timeoutMs;
     const deadline = Date.now() + timeoutMs;
-    const submission = await this.submitV2(model, input, {
-      timeoutMs: this.remainingTime(deadline, timeoutMs),
-      submitMaxRetries: options.submitMaxRetries,
-    });
-    const requestId = submission.request_id;
+    let requestId = options.requestId;
+    if (requestId) {
+      this.assertRequestId(requestId);
+    } else {
+      await options.beforeSubmit?.();
+      const submission = await this.submitV2(model, input, {
+        timeoutMs: this.remainingTime(deadline, timeoutMs),
+        submitMaxRetries: options.submitMaxRetries ?? 0,
+      });
+      requestId = submission.request_id;
+      // Persist before polling so a process restart can resume this job.
+      await options.onSubmitted?.(requestId);
+    }
     const pollIntervalMs = options.pollIntervalMs ?? this.pollIntervalMs;
 
     while (true) {
@@ -304,6 +315,11 @@ export class SegmindClient {
           requestId,
           this.remainingTime(deadline, timeoutMs, requestId),
         );
+        if (result.status === 'FAILED')
+          throw new SegmindInferenceError(
+            requestId,
+            result.error ?? 'Segmind inference failed',
+          );
         return { requestId, result };
       }
 

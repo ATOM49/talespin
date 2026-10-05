@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import type { FactionForm, WorldForm } from '@talespin/schema';
+import type { FactionForm, WorldForm } from '@talespin/models';
 
 const WATCHER_API_URL = process.env.WATCHER_API_URL || 'http://localhost:4000';
 

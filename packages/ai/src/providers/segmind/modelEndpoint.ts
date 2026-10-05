@@ -29,6 +29,7 @@ export type SegmindModelEndpointOptions<Input, Output> = {
   ): Output | Promise<Output>;
   v1ResponseType?: 'auto' | 'binary' | 'json';
   v2?: SegmindV2InvocationOptions;
+  recovery?: (input: Input) => SegmindV2InvocationOptions;
 };
 
 export class SegmindModelEndpoint<Input, Output> extends Runnable<
@@ -66,7 +67,7 @@ export class SegmindModelEndpoint<Input, Output> extends Runnable<
     const { requestId, result } = await this.options.client.invokeV2(
       this.options.model,
       payload,
-      this.options.v2,
+      { ...this.options.v2, ...this.options.recovery?.(input) },
     );
     return this.options.parseResponse(
       { version: 'v2', requestId, response: result },

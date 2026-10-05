@@ -4,7 +4,7 @@ import {
   NarrativeGenerationResponseSchema,
   type NarrativeGenerationRequest,
   type NarrativeGenerationResponse,
-} from '@talespin/schema';
+} from '@talespin/models';
 import { createNarrativeGenerationFunction } from '../../chains/generateNarrative.js';
 
 const narrativeRoute: FastifyPluginAsync = async (fastify) => {

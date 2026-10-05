@@ -3,9 +3,8 @@ import {
   advanceTravel,
   buildTravelPlan,
   chooseTransport,
-  evaluateObjectives,
   fallbackTransportOptions,
-  requiredObjectivesComplete,
+  evaluateMissionProgress,
 } from '@talespin/game-engine';
 import {
   ChapterSchema,
@@ -25,7 +24,7 @@ import {
   type MissionPlayView,
   type StoryPlayView,
   type SubmitMissionAction,
-} from '@talespin/schema';
+} from '@talespin/models';
 import { ApiError } from './errors';
 import { GridService } from './grid.service';
 import { StoryService } from './story.service';
@@ -581,18 +580,15 @@ export class GameplayService {
     const revealed = Array.from(
       new Set([...mission.revealedCellIds, ...movement.traversedCellIds]),
     );
-    const objectives = evaluateObjectives({
-      objectives: MissionObjectiveSchema.array().parse(mission.objectives),
-      currentCellId,
-      knownFacts: state.knownFacts,
-      inventoryItemKeys: state.inventory.map((item) => item.key),
-      usedItemKeys: state.usedItemKeys,
-    });
     const actionsUsed = mission.actionsUsed + movement.actionCost;
-    const complete =
-      currentCellId === mission.destinationCellId &&
-      requiredObjectivesComplete(objectives);
-    const failed = !complete && actionsUsed >= mission.maxActions;
+    const { objectives, complete, failed } = evaluateMissionProgress({
+      objectives: MissionObjectiveSchema.array().parse(mission.objectives),
+      state,
+      currentCellId,
+      destinationCellId: mission.destinationCellId,
+      actionsUsed,
+      maxActions: mission.maxActions,
+    });
     const nextSequence = (mission.interactions[0]?.sequence ?? -1) + 1;
 
     await this.prisma.$transaction(async (transaction) => {

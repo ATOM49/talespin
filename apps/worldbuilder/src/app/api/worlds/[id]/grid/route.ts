@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { ApiError, handleApiError } from '@/lib/api/errors';
 import { GridService } from '@/lib/api/grid.service';
 import { requireUser, BUILDER_ONLY } from '@/lib/auth/guards';
-import { WorldGridFormSchema } from '@talespin/schema';
+import { WorldGridFormSchema } from '@talespin/models';
 
 const gridService = new GridService(prisma);
 

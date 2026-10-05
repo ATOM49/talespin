@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { Prisma, PrismaClient } from '@prisma/client';
-import type { WorldGenerationJob } from '@talespin/schema';
+import type { WorldGenerationJob } from '@talespin/models';
 import { ApiError } from '../src/lib/api/errors';
 import { WorldGenerationService } from '../src/lib/api/world-generation.service';
 

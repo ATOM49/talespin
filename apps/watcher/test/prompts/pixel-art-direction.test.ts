@@ -4,7 +4,7 @@ import type {
   EnhancedWorldContext,
   GeneratedCharacter,
   GeneratedFaction,
-} from '@talespin/schema';
+} from '@talespin/models';
 import { characterPromptTemplate } from '../../src/prompts/characterPrompt.js';
 import { factionPromptTemplate } from '../../src/prompts/generate-faction.js';
 import { mapPromptTemplate } from '../../src/prompts/generate-map.js';

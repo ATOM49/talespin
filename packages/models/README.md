@@ -1,4 +1,4 @@
-# @talespin/schema
+# @talespin/models
 
 A centralized schema management package that provides type-safe validation and form rendering across the Talespin application. Built with [Zod](https://zod.dev/), this package ensures data consistency between the `watcher` service (validation) and `worldbuilder` UI (form rendering).
 
@@ -21,7 +21,7 @@ This is an internal package linked through the Talespin pnpm workspace. From the
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm build:schema
+pnpm build:models
 ```
 
 See [Local Development](../../docs/LOCAL_DEVELOPMENT.md) for the complete application, database, and provider setup.
@@ -68,7 +68,7 @@ export * from './my-entity';
 ### 3. Build the Package
 
 ```bash
-pnpm build:schema
+pnpm build:models
 ```
 
 ## Adding to MongoDB Schema
@@ -116,7 +116,7 @@ MongoDB must have the `rs0` replica set initialized before `prisma db push`. Fol
 ### In Watcher (Validation)
 
 ```typescript
-import { WorldFormSchema } from '@talespin/schema';
+import { WorldFormSchema } from '@talespin/models';
 
 // Validate incoming request
 const result = WorldFormSchema.safeParse(req.body);
@@ -128,7 +128,7 @@ if (!result.success) {
 ### In Worldbuilder (Form Rendering)
 
 ```typescript
-import { WorldFormSchema } from '@talespin/schema';
+import { WorldFormSchema } from '@talespin/models';
 import { ZodProvider } from '@autoform/zod';
 
 const schemaProvider = new ZodProvider(WorldFormSchema);
@@ -138,7 +138,7 @@ return <AutoForm schema={schemaProvider} onSubmit={handleSubmit} />;
 ## Project Structure
 
 ```
-packages/schema/
+packages/models/
 ├── src/
 │   ├── index.ts                    # Public exports
 │   ├── common.ts                   # Shared IDs and utilities

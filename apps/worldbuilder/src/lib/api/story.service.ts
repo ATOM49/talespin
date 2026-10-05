@@ -4,7 +4,7 @@ import {
   StoryOverviewSchema,
   type StartStoryInput,
   type StoryOverview,
-} from '@talespin/schema';
+} from '@talespin/models';
 import { ApiError } from './errors';
 import { CharacterService } from './character.service';
 import { WorldService } from './world.service';

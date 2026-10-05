@@ -6,7 +6,7 @@ This file records current and target decisions imported from the product design 
 
 **Status:** Accepted (current)
 
-Shared request, generation, and domain boundaries use schemas from `packages/schema`; TypeScript types should be inferred where practical. Persisted Prisma models must be updated alongside their Zod counterparts.
+Shared request, generation, and domain boundaries use schemas from `packages/models`; TypeScript types should be inferred where practical. Persisted Prisma models must be updated alongside their Zod counterparts.
 
 ## ADR-002: Story owns the plot and references a World
 
@@ -126,3 +126,17 @@ left over. Leases make overlapping runners safe. Inline runs are bounded by
 the function duration limit, so generation timeouts must fit inside it.
 Watcher requests require a shared `WATCHER_API_KEY` because a serverless
 watcher is publicly reachable.
+
+## ADR-017: Generation recovery is infrastructure state
+
+**Status:** Accepted (current)
+
+Worldbuilder owns durable application jobs and authoritative game state.
+Watcher owns validated generation-stage checkpoints in a dedicated MongoDB
+collection, using the existing database infrastructure. It persists Segmind v2
+request IDs before polling and reuses successful stages on retry. Expired or
+failed downloads never imply a new billable submission. An unresolved submission
+requires reconciliation; confirmed inference failure permits replacement.
+Contracts are shared through `@talespin/models`, and the typed client does not
+perform automatic whole-request retries. Pure Mission and outcome rules live in
+`packages/game-engine`. See [Generation Recovery](GENERATION_RECOVERY.md).

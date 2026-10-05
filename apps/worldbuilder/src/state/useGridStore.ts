@@ -5,7 +5,7 @@ import type {
   GridCellMetadata,
   GridConfig,
   RegionSelection,
-} from '@talespin/schema';
+} from '@talespin/models';
 import { buildGridDocument } from '@/utils/mongoSchemas';
 
 export interface GridState {

@@ -2,7 +2,7 @@
 import { ZodProvider } from '@autoform/zod';
 import { AutoForm } from '../ui/autoform';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
-import { Character, CharacterFormSchema, Faction } from '@talespin/schema';
+import { Character, CharacterFormSchema, Faction } from '@talespin/models';
 import { QueryKey, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { Label } from '../ui/label';

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Character } from '@talespin/schema';
+import { Character } from '@talespin/models';
 import {
   Carousel,
   CarouselContent,

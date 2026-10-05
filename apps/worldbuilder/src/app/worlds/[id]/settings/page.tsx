@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
-import { World, WorldFormSchema, WorldGridFormSchema } from '@talespin/schema';
+import { World, WorldFormSchema, WorldGridFormSchema } from '@talespin/models';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';

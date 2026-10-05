@@ -1,4 +1,4 @@
-import { CharacterGalleryImageSchema } from '@talespin/schema';
+import { CharacterGalleryImageSchema } from '@talespin/models';
 import { RunnableSequence, RunnableLambda } from '@langchain/core/runnables';
 import { z } from 'zod';
 import turnaroundPlannerTemplate from '../prompts/turnaroundPlannerTemplate.js';

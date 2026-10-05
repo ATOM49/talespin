@@ -2,7 +2,7 @@ import type {
   EnhancedWorldContext,
   GeneratedCharacter,
   GeneratedFaction,
-} from '@talespin/schema';
+} from '@talespin/models';
 import {
   HIGH_FIDELITY_PIXEL_ART_DIRECTION,
   TEXT_FREE_IMAGE_DIRECTION,

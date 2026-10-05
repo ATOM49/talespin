@@ -112,3 +112,42 @@ describe('Segmind image model adapters', () => {
     );
   });
 });
+
+it('uses a saved async generation ID through image download without another POST', async () => {
+  const fetchMock = vi
+    .fn<typeof fetch>()
+    .mockResolvedValueOnce(Response.json({ status: 'COMPLETED' }))
+    .mockResolvedValueOnce(
+      Response.json({
+        status: 'COMPLETED',
+        images: [{ url: 'https://images.segmind.com/recovered.png' }],
+      }),
+    )
+    .mockResolvedValueOnce(
+      new Response(Uint8Array.from([9]), {
+        headers: { 'content-type': 'image/png' },
+      }),
+    );
+  const model = createSeedreamImageModel({
+    client: createClient(fetchMock),
+    version: 'v2',
+  });
+  const result = await model.invoke({
+    prompt: 'Recovered portrait',
+    size: '1024x1792',
+    recovery: {
+      requestId: 'saved-id',
+      beforeSubmit: async () => {
+        throw new Error('Must not submit');
+      },
+      onSubmitted: async () => {
+        throw new Error('Must not replace ID');
+      },
+    },
+  });
+  expect(result.providerMeta.requestId).toBe('saved-id');
+  expect(result.imageBuffer).toEqual(Buffer.from([9]));
+  expect(
+    fetchMock.mock.calls.every(([, init]) => init?.method !== 'POST'),
+  ).toBe(true);
+});

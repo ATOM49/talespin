@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { Prisma, PrismaClient } from '@prisma/client';
-import type { NarrativeJob } from '@talespin/schema';
+import type { NarrativeJob } from '@talespin/models';
 import { NarrativeGenerationService } from '../src/lib/api/narrative-generation.service';
 
 test('the narrative worker selects the oldest dispatchable job and runs it outside a route', async () => {

@@ -59,6 +59,11 @@ export type ImageGenerationInput = {
   size: ImageGenerationSize;
   quality?: 'standard' | 'hd';
   style?: 'vivid' | 'natural';
+  recovery?: {
+    requestId?: string;
+    beforeSubmit(): Promise<void>;
+    onSubmitted(requestId: string): Promise<void>;
+  };
 };
 
 export type GeneratedImage = {

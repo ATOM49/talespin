@@ -4,7 +4,7 @@ import {
   FactionForm,
   FactionFormSchema,
   FactionMetaSchema,
-} from '@talespin/schema';
+} from '@talespin/models';
 import { ApiError } from './errors';
 import { FactionQueryParams, FactionQueryParamsSchema } from './types';
 import {

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
-import type { MissionPlayView, StoryPlayView } from '@talespin/schema';
+import type { MissionPlayView, StoryPlayView } from '@talespin/models';
 
 const loadDatabaseUrl = () => {
   if (process.env.DATABASE_URL) return process.env.DATABASE_URL;

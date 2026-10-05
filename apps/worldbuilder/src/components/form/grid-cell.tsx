@@ -2,7 +2,7 @@
 import { ZodProvider } from '@autoform/zod';
 import { AutoForm } from '../ui/autoform';
 import { useApiMutation } from '@/hooks/useApiQuery';
-import { GridCell, GridCellFormSchema } from '@talespin/schema';
+import { GridCell, GridCellFormSchema } from '@talespin/models';
 import { useQueryClient } from '@tanstack/react-query';
 
 interface GridCellFormComponentProps {
