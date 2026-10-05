@@ -13,11 +13,11 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "paths": {
-      "@talespin/models": [
-        "../../packages/models/dist/index.d.ts",
-        "../../packages/models/dist/index.js"
+      "@talespin/schema": [
+        "../../packages/schema/dist/index.d.ts",
+        "../../packages/schema/dist/index.js"
       ],
-      "@talespin/models/*": ["../../packages/models/dist/*"]
+      "@talespin/schema/*": ["../../packages/schema/dist/*"]
     }
   },
   "include": ["src/**/*.ts"]

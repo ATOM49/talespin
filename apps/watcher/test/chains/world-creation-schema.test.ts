@@ -3,7 +3,7 @@ import test from 'node:test';
 import {
   GeneratedCharacterBatchSchema,
   GeneratedFactionBatchSchema,
-} from '@talespin/models';
+} from '@talespin/schema';
 
 const character = {
   key: 'storm-reader',

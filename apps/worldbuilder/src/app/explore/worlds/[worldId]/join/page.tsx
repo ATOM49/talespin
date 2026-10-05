@@ -3,7 +3,7 @@
 import React, { FormEvent, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Character, StoryOverview, World } from '@talespin/models';
+import { Character, StoryOverview, World } from '@talespin/schema';
 import { ArrowLeft, BookOpen, Plus, Sparkles, UserRound } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { AppHeader } from '@/components/app-header';

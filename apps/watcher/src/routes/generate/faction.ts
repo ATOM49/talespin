@@ -1,7 +1,7 @@
 import { FastifyPluginAsync } from 'fastify';
 import { factionPromptTemplate } from '../../prompts/generate-faction.js';
 
-import { type WatcherInput, type WatcherOutput } from '@talespin/models';
+import { type WatcherInput, type WatcherOutput } from '@talespin/schema';
 type FactionImageRequestBody = WatcherInput<'/generate/faction'>;
 type FactionImageResponse = WatcherOutput<'/generate/faction'>;
 

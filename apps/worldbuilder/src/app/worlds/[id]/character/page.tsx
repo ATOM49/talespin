@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
-import { Character, World } from '@talespin/models';
+import { Character, World } from '@talespin/schema';
 import { Spinner } from '@/components/ui/spinner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import CharacterFormComponent from '@/components/form/character';

@@ -1,6 +1,6 @@
 import { FastifyPluginAsync } from 'fastify';
 import { mapPromptTemplate } from '../../prompts/generate-map.js';
-import { type WatcherInput, type WatcherOutput } from '@talespin/models';
+import { type WatcherInput, type WatcherOutput } from '@talespin/schema';
 
 type GenerateMapResponse = WatcherOutput<'/generate/map'>;
 interface ErrorResponse {

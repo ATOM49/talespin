@@ -3,7 +3,7 @@ import {
   CharacterProfileRequestSchema,
   type CharacterProfileRequestInput,
   type WatcherOutput,
-} from '@talespin/models';
+} from '@talespin/schema';
 import { createGenerateCharacterFunction } from '../../chains/generateCharacter.js';
 
 type CharacterGenerationResponse = WatcherOutput<'/generate/character'>;

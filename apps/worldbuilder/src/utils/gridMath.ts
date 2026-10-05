@@ -1,4 +1,4 @@
-import type { GridConfig } from '@talespin/models';
+import type { GridConfig } from '@talespin/schema';
 
 export interface CanvasSize {
   width: number;

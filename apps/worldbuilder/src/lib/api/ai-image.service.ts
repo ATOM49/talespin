@@ -5,15 +5,15 @@ import {
   type EditImageRequestInput,
   type EditImageResponse,
   type WatcherInput,
-} from '@talespin/models';
+} from '@talespin/schema';
 import { WatcherClient, WatcherError } from './watcher-client';
 
-export { FactionImageRequestSchema } from '@talespin/models';
+export { FactionImageRequestSchema } from '@talespin/schema';
 export type {
   FactionImageRequestInput,
   EditImageRequestInput,
   EditImageResponse,
-} from '@talespin/models';
+} from '@talespin/schema';
 export interface ImageGenerationOptions {
   timeout?: number;
   baseUrl?: string;

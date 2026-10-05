@@ -6,7 +6,7 @@
 
 - **`worldbuilder`** (Next.js 15 + React 19): Frontend UI for creating/managing worlds, regions, locations, entities, and campaigns with AI-assisted map generation
 - **`watcher`** (Fastify): Generation service owning prompts, typed proposals, media coordination, and infrastructure checkpoints
-- **`@talespin/models`** (Vite): Shared Zod schemas consumed by both apps for type safety and form rendering
+- **`@talespin/schema`** (Vite): Shared Zod schemas consumed by both apps for type safety and form rendering
 
 ## Architecture
 
@@ -60,10 +60,10 @@ pnpm dlx prisma db push    # Push schema to MongoDB
 
 ### Schema Changes
 
-When modifying `packages/models/src/*.ts`:
+When modifying `packages/schema/src/*.ts`:
 
 ```bash
-pnpm build:models  # Rebuild package
+pnpm build:schema  # Rebuild package
 # Both apps auto-detect changes via workspace: protocol
 ```
 
@@ -78,7 +78,7 @@ pnpm build:models  # Rebuild package
 
 ### 1. Schema-Driven Development
 
-All entities follow the same pattern (see `packages/models/README.md`):
+All entities follow the same pattern (see `packages/schema/README.md`):
 
 ```typescript
 // 1. Define base schema (shared validation rules)
@@ -108,7 +108,7 @@ Forms are auto-generated from Zod schemas:
 ```typescript
 import { ZodProvider } from '@autoform/zod';
 import { AutoForm } from '@/components/ui/autoform';
-import { EntityFormSchema } from '@talespin/models';
+import { EntityFormSchema } from '@talespin/schema';
 
 const schemaProvider = new ZodProvider(EntityFormSchema);
 <AutoForm schema={schemaProvider} onSubmit={handleSubmit} withSubmit />
@@ -140,7 +140,7 @@ Follow Next.js 15 App Router conventions:
 ```typescript
 // apps/worldbuilder/src/app/api/entities/route.ts
 import { EntityService } from '@/lib/api/entity.service';
-import { EntityFormSchema } from '@talespin/models';
+import { EntityFormSchema } from '@talespin/schema';
 import { handleApiError } from '@/lib/api/errors';
 import { prisma } from '@/lib/prisma';
 
@@ -228,8 +228,8 @@ MINIO_SECRET_KEY="minioadmin"
 
 ### Adding a New Entity Type
 
-1. Create schema in `packages/models/src/my-entity.ts` (follow pattern in §1)
-2. Export from `packages/models/src/index.ts`
+1. Create schema in `packages/schema/src/my-entity.ts` (follow pattern in §1)
+2. Export from `packages/schema/src/index.ts`
 3. Add Prisma model to `apps/worldbuilder/prisma/schema.prisma`
 4. Run `pnpm dlx prisma generate && pnpm dlx prisma db push`
 5. Create service in `apps/worldbuilder/src/lib/api/my-entity.service.ts`
@@ -240,7 +240,7 @@ MINIO_SECRET_KEY="minioadmin"
 
 - **MongoDB connection**: Ensure `docker compose up -d` and replica set initialized
 - **Image generation fails**: Check `OPENAI_API_KEY` in watcher, verify MinIO health at http://localhost:9001
-- **Schema validation errors**: Ensure `pnpm build:models` after schema changes
+- **Schema validation errors**: Ensure `pnpm build:schema` after schema changes
 - **CORS errors**: Verify `WATCHER_API_URL` matches actual port (default 4000)
 
 ## Tech Stack Reference

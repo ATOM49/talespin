@@ -10,7 +10,7 @@ import {
   TransportOptionsProposalSchema,
   type NarrativeGenerationRequest,
   type NarrativeGenerationResponse,
-} from '@talespin/models';
+} from '@talespin/schema';
 import { createStructuredOutputModel } from '../config/models.js';
 import { narrativePrompt } from '../prompts/narrative.js';
 

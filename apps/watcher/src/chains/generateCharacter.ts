@@ -6,7 +6,7 @@ import {
   type CharacterProfileRequestInput,
   type CharacterGeneratedDetails,
   type CharacterGalleryImage,
-} from '@talespin/models';
+} from '@talespin/schema';
 import { characterPromptTemplate } from '../prompts/characterPrompt.js';
 import { createCharacterProfileChain } from './generateCharacterProfile.js';
 import { createCharacterGalleryChain } from './generateCharacterGallery.js';

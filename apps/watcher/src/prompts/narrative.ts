@@ -1,4 +1,4 @@
-import type { NarrativeGenerationRequest } from '@talespin/models';
+import type { NarrativeGenerationRequest } from '@talespin/schema';
 
 export function narrativePrompt(request: NarrativeGenerationRequest): string {
   const rules = [

@@ -120,7 +120,7 @@ The checked-in MinIO credentials are local development defaults: `minioadmin` / 
 Workspace consumers import built `dist` exports from the shared packages. Build them after a fresh install:
 
 ```bash
-pnpm build:models
+pnpm build:schema
 pnpm build:game-engine
 pnpm build:ai
 pnpm build:cdn
@@ -133,7 +133,7 @@ pnpm --filter @talespin/worldbuilder exec prisma generate
 pnpm --filter @talespin/worldbuilder exec prisma db push
 ```
 
-Repeat the relevant shared-package build after editing `packages/models`,
+Repeat the relevant shared-package build after editing `packages/schema`,
 `packages/game-engine`, `packages/ai`, or `packages/cdn`. After Prisma changes,
 run both Prisma commands again. Existing grids can receive traversal metadata
 without regeneration:
@@ -229,7 +229,7 @@ docker compose logs minio minio-setup
 
 ### A shared import cannot resolve `dist`
 
-Rebuild the owning package with `pnpm build:models`,
+Rebuild the owning package with `pnpm build:schema`,
 `pnpm build:game-engine`, `pnpm build:ai`, or `pnpm build:cdn`.
 
 ## Shutdown and Data

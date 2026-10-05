@@ -2,7 +2,7 @@ import type { FastifyPluginAsync } from 'fastify';
 import {
   CharacterImageRequestSchema,
   type WatcherInput,
-} from '@talespin/models';
+} from '@talespin/schema';
 import { createCharacterGalleryChain } from '../../chains/generateCharacterGallery.js';
 import { characterPromptTemplate } from '../../prompts/characterPrompt.js';
 

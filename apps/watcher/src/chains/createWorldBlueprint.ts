@@ -19,7 +19,7 @@ import {
   type ParsedWorldCreationSeed,
   type WorldBlueprint,
   type WorldCreationSeed,
-} from '@talespin/models';
+} from '@talespin/schema';
 import {
   createMultimodalStructuredOutputModel,
   createStructuredOutputModel,

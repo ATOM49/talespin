@@ -4,7 +4,7 @@ import {
   GenerationIdSchema,
   WatcherContracts,
   type WatcherEndpoint,
-} from '@talespin/models';
+} from '@talespin/schema';
 import {
   generationContext,
   type GenerationStore,

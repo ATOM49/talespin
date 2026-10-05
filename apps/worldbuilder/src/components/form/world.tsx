@@ -2,7 +2,7 @@
 import { ZodProvider } from '@autoform/zod';
 import { AutoForm } from '../ui/autoform';
 import { useApiMutation } from '@/hooks/useApiQuery';
-import { World, WorldFormSchema } from '@talespin/models';
+import { World, WorldFormSchema } from '@talespin/schema';
 import { useQueryClient } from '@tanstack/react-query';
 
 interface WorldFormComponentProps {

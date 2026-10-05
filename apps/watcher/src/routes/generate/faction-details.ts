@@ -4,7 +4,7 @@ import {
   FactionFormSchema,
   type FactionForm,
   type WatcherInput,
-} from '@talespin/models';
+} from '@talespin/schema';
 import { createStructuredOutputModel } from '../../config/models.js';
 
 const promptTemplate = PromptTemplate.fromTemplate(`

@@ -160,7 +160,7 @@ deterministic transitions                typed generation proposals
         |                                      |
         +------------------+-------------------+
                            v
-                    packages/models
+                    packages/schema
 ```
 
 `packages/game-engine` owns pure, testable behavior for path validation, legal
@@ -220,7 +220,7 @@ game-engine boundary.
 
 ## Implemented Sequence
 
-1. `packages/models` defines Story, Chapter, Mission, Interaction, travel,
+1. `packages/schema` defines Story, Chapter, Mission, Interaction, travel,
    action, outcome, state-change, player-view, and generation contracts.
 2. `packages/game-engine` supplies pure terrain, route, transport, objective,
    and state-transition rules with focused tests.

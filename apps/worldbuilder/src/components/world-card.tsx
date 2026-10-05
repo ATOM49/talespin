@@ -9,7 +9,7 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Character, World } from '@talespin/models';
+import { Character, World } from '@talespin/schema';
 import Image from 'next/image';
 import Link from 'next/link';
 

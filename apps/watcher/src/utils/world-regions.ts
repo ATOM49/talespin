@@ -2,7 +2,7 @@ import type {
   GridCoordinate,
   MapBounds,
   RegionVisualSeed,
-} from '@talespin/models';
+} from '@talespin/schema';
 
 export type PartitionedRegion = {
   seed: RegionVisualSeed;

@@ -2,7 +2,7 @@
 import { ZodProvider } from '@autoform/zod';
 import { AutoForm } from '../ui/autoform';
 import { useApiMutation } from '@/hooks/useApiQuery';
-import { Location, LocationFormSchema } from '@talespin/models';
+import { Location, LocationFormSchema } from '@talespin/schema';
 import { useQueryClient } from '@tanstack/react-query';
 
 interface LocationFormComponentProps {

@@ -2,7 +2,7 @@
 
 ## Current Model
 
-`packages/models` is the runtime contract source of truth, with MongoDB representations in `apps/worldbuilder/prisma/schema.prisma`.
+`packages/schema` is the runtime contract source of truth, with MongoDB representations in `apps/worldbuilder/prisma/schema.prisma`.
 
 ```text
 World

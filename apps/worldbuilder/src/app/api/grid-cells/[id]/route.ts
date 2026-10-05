@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { handleApiError } from '@/lib/api/errors';
 import { GridService } from '@/lib/api/grid.service';
-import { GridCellFormSchema } from '@talespin/models';
+import { GridCellFormSchema } from '@talespin/schema';
 import { requireUser, BUILDER_ONLY } from '@/lib/auth/guards';
 
 const gridService = new GridService(prisma);

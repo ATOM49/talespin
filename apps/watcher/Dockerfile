@@ -32,7 +32,7 @@ RUN pnpm fetch --frozen-lockfile
 FROM deps AS build
 COPY . .
 RUN pnpm install --offline --frozen-lockfile --ignore-scripts
-RUN pnpm build:models \
+RUN pnpm build:schema \
   && pnpm build:ai \
   && pnpm build:cdn \
   && pnpm build:watcher
@@ -49,7 +49,7 @@ FROM base AS runtime
 ENV NODE_ENV=production \
     PORT=4000
 COPY --from=prod-deps /repo /repo
-COPY --from=build /repo/packages/models/dist /repo/packages/models/dist
+COPY --from=build /repo/packages/schema/dist /repo/packages/schema/dist
 COPY --from=build /repo/packages/ai/dist /repo/packages/ai/dist
 COPY --from=build /repo/packages/cdn/dist /repo/packages/cdn/dist
 COPY --from=build /repo/apps/watcher/dist /repo/apps/watcher/dist

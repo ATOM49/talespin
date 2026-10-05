@@ -7,7 +7,7 @@ Read `../../docs/architecture/ARCHITECTURE.md` and `../../docs/architecture/LANG
 ## Rules
 
 - Keep route handlers narrow: validate input, invoke a chain/service, validate output, map errors, and reply.
-- Reuse contracts from `@talespin/models`; do not maintain an avoidable second domain schema in route JSON definitions.
+- Reuse contracts from `@talespin/schema`; do not maintain an avoidable second domain schema in route JSON definitions.
 - Parse model output with Zod before returning it or passing it to another boundary.
 - Keep large or reusable prompts in `src/prompts/` and composition in `src/chains/`.
 - Keep the shared pixel-art contract in `src/prompts/pixel-art-direction.ts` and character distinction/staging in `src/prompts/character-variation.ts`. Update standalone and world-blueprint map, faction, and character paths together.

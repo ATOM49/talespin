@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
-import { Character } from '@talespin/models';
+import { Character } from '@talespin/schema';
 import { Button } from '@/components/ui/button';
 import {
   Card,

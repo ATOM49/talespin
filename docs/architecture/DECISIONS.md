@@ -6,7 +6,7 @@ This file records current and target decisions imported from the product design 
 
 **Status:** Accepted (current)
 
-Shared request, generation, and domain boundaries use schemas from `packages/models`; TypeScript types should be inferred where practical. Persisted Prisma models must be updated alongside their Zod counterparts.
+Shared request, generation, and domain boundaries use schemas from `packages/schema`; TypeScript types should be inferred where practical. Persisted Prisma models must be updated alongside their Zod counterparts.
 
 ## ADR-002: Story owns the plot and references a World
 
@@ -137,6 +137,6 @@ collection, using the existing database infrastructure. It persists Segmind v2
 request IDs before polling and reuses successful stages on retry. Expired or
 failed downloads never imply a new billable submission. An unresolved submission
 requires reconciliation; confirmed inference failure permits replacement.
-Contracts are shared through `@talespin/models`, and the typed client does not
+Contracts are shared through `@talespin/schema`, and the typed client does not
 perform automatic whole-request retries. Pure Mission and outcome rules live in
 `packages/game-engine`. See [Generation Recovery](GENERATION_RECOVERY.md).

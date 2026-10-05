@@ -1,5 +1,5 @@
 {
-  "name": "@talespin/models",
+  "name": "@talespin/schema",
   "private": true,
   "version": "0.0.1",
   "type": "module",

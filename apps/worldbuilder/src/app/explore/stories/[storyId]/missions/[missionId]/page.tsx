@@ -8,7 +8,7 @@ import type {
   GridCell,
   MissionPlayView,
   SubmitMissionAction,
-} from '@talespin/models';
+} from '@talespin/schema';
 import {
   ArrowLeft,
   BookOpen,

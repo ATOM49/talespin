@@ -29,7 +29,7 @@ import {
   type NarrativeGenerationResponse,
   type NarrativeJob,
   type StoryOutlineProposal,
-} from '@talespin/models';
+} from '@talespin/schema';
 import { ApiError } from './errors';
 import { WatcherClient } from './watcher-client';
 

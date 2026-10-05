@@ -1,6 +1,6 @@
 # Models Package Instructions
 
-`@talespin/models` is the canonical runtime-contract package. Read `../../docs/product/DOMAIN_MODEL.md` and `../../docs/product/GAME_CONTEXT.md` before adding narrative entities.
+`@talespin/schema` is the canonical runtime-contract package. Read `../../docs/product/DOMAIN_MODEL.md` and `../../docs/product/GAME_CONTEXT.md` before adding narrative entities.
 
 ## Boundaries
 
@@ -19,4 +19,4 @@ When a schema is persisted, update `../../apps/worldbuilder/prisma/schema.prisma
 
 ## Verification
 
-Install from the repository root with `pnpm install --frozen-lockfile`; this is an internal workspace package. Run `pnpm build:models`, then build or test affected consumers. If persistence changes, run Prisma generate and db push through the worldbuilder workspace as documented in `../../docs/LOCAL_DEVELOPMENT.md`. Add focused schema tests when introducing refinements, unions, defaults, or compatibility-sensitive parsing.
+Install from the repository root with `pnpm install --frozen-lockfile`; this is an internal workspace package. Run `pnpm build:schema`, then build or test affected consumers. If persistence changes, run Prisma generate and db push through the worldbuilder workspace as documented in `../../docs/LOCAL_DEVELOPMENT.md`. Add focused schema tests when introducing refinements, unions, defaults, or compatibility-sensitive parsing.

@@ -6,7 +6,7 @@ import type {
   TravelStop,
   TraversalMedium,
   TraversalProfile,
-} from '@talespin/models';
+} from '@talespin/schema';
 
 const TERRAIN_RULES: Array<{
   pattern: RegExp;

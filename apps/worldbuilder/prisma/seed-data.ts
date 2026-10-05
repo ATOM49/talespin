@@ -1,4 +1,4 @@
-import type { FactionForm, WorldForm } from '@talespin/models';
+import type { FactionForm, WorldForm } from '@talespin/schema';
 
 // Shared seed data for Middle-earth factions
 export const MIDDLE_EARTH_FACTIONS: Array<Omit<FactionForm, 'previewUrl'>> = [

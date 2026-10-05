@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient } from '@prisma/client';
-import { RegionSchema, type Region } from '@talespin/models';
+import { RegionSchema, type Region } from '@talespin/schema';
 import { ApiError } from './errors';
 
 const regionSelect = {

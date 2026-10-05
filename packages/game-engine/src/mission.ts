@@ -5,7 +5,7 @@ import {
   type InteractionKind,
   type InteractionOutcome,
   type InteractionTarget,
-} from '@talespin/models';
+} from '@talespin/schema';
 import { findTerrainRoute } from './travel.js';
 import {
   applyStoryStateChanges,

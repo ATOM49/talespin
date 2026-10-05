@@ -4,7 +4,7 @@ import { buildInpaintMaskPNG } from '@talespin/cdn';
 import {
   type EditImageRequestInput,
   type EditImageResponse,
-} from '@talespin/models';
+} from '@talespin/schema';
 type EditImageRequestBody = EditImageRequestInput;
 
 interface ErrorResponse {

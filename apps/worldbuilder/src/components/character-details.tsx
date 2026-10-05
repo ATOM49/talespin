@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
-import { Character } from '@talespin/models';
+import { Character } from '@talespin/schema';
 import { Spinner } from '@/components/ui/spinner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import CharacterFormComponent from '@/components/form/character';

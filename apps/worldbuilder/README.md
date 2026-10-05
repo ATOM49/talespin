@@ -19,7 +19,7 @@ For production-like authentication, set `E2E_TEST_MODE=false` and configure both
 From the repository root:
 
 ```bash
-pnpm build:models
+pnpm build:schema
 pnpm --filter @talespin/worldbuilder exec prisma generate
 pnpm --filter @talespin/worldbuilder exec prisma db push
 pnpm dev
@@ -45,10 +45,10 @@ pnpm --filter @talespin/worldbuilder exec prisma studio
 
 ## Prisma Changes
 
-Prisma is the persistence representation, not the domain-contract source of truth. Update `packages/models`, Prisma models, service DTO mappings, and affected API consumers together.
+Prisma is the persistence representation, not the domain-contract source of truth. Update `packages/schema`, Prisma models, service DTO mappings, and affected API consumers together.
 
 ```bash
-pnpm build:models
+pnpm build:schema
 pnpm --filter @talespin/worldbuilder exec prisma generate
 pnpm --filter @talespin/worldbuilder exec prisma db push
 ```

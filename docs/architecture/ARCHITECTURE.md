@@ -22,7 +22,7 @@ MongoDB
                        v     v                 v
                     OpenAI  Segmind           MinIO
 
-packages/models is shared across both applications.
+packages/schema is shared across both applications.
 ```
 
 `apps/worldbuilder/src/lib/api/` contains service and DTO mapping logic. `apps/watcher` owns generation routes, prompts, and LangChain runnable composition. `packages/ai` contains provider-facing primitives, not an agent graph. Authoritative Prisma persistence remains inside worldbuilder. Watcher separately owns the infrastructure-only `GenerationCheckpoint` collection; it cannot mutate world or Story state.
@@ -50,11 +50,9 @@ The supported local stack uses Node 20.19.0, pnpm 10.13.1, Docker Compose, a sin
 
 ## Generation Recovery and Transport
 
-`@talespin/models` replaces the former schema package as the canonical domain
-and wire-contract boundary. Worldbuilder calls watcher through a typed,
-server-only client. Watcher validates requests and responses against that same
+`@talespin/schema` is the canonical domain and wire-contract boundary.
+Worldbuilder calls watcher through a typed, server-only client. Watcher validates requests and responses against that same
 endpoint registry, including distinct character synthesis and gallery endpoints.
-`build:schema` remains a compatibility alias for `build:models`.
 
 Watcher checkpoints validated text/vision stages and each media operation in
 MongoDB. Stable generation IDs survive application retries; fingerprints include
@@ -89,7 +87,7 @@ experience gateway that switches the current authenticated role.
 | ----------------------- | -------------------------------------- | ------------------------------------------------------- |
 | Player-facing web app   | `apps/worldbuilder`                    | Builder, Story preparation, and active Mission views.   |
 | Game server             | Next.js API routes plus `apps/watcher` | Authoritative services plus typed generation proposals. |
-| Domain package          | `packages/models`                      | Zod contracts for worldbuilding and narrative play.     |
+| Domain package          | `packages/schema`                      | Zod contracts for worldbuilding and narrative play.     |
 | Game engine             | `packages/game-engine`                 | Pure travel, state-change, and objective rules.         |
 | Agent orchestration     | Narrative jobs and watcher chains      | Durable app state machine; LangGraph is deferred.       |
 | Persistence package     | Worldbuilder Prisma/services           | Keep current until reuse justifies extraction.          |
@@ -110,12 +108,12 @@ orchestration / persistence
 deterministic game engine
     |
     v
-packages/models
+packages/schema
 ```
 
 Runtime data may flow back to the client, but lower layers must not import higher layers. In particular:
 
-- `packages/models` must not depend on React, Prisma, Fastify, LangChain, or providers.
+- `packages/schema` must not depend on React, Prisma, Fastify, LangChain, or providers.
 - deterministic gameplay must not call LLMs or persist implicitly;
 - generated proposals cross boundaries through validated contracts;
 - application services load state, invoke orchestration/engine behavior, persist results, and return client events;

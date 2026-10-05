@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { WorldService } from '@/lib/api/world.service';
-import { WorldFormSchema } from '@talespin/models';
+import { WorldFormSchema } from '@talespin/schema';
 import { handleApiError } from '@/lib/api/errors';
 import { prisma } from '@/lib/prisma';
 import { requireUser, BUILDER_ONLY } from '@/lib/auth/guards';

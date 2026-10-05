@@ -12,7 +12,7 @@ import {
 import { FabricGrid } from '@/components/FabricGrid/FabricGrid';
 import type { GridCellVisual } from '@/components/FabricGrid/types';
 import { useGridSync } from '@/components/map-common/useGridSync';
-import type { GridCell, WorldGrid } from '@talespin/models';
+import type { GridCell, WorldGrid } from '@talespin/schema';
 
 interface MapViewerProps {
   imageUrl: string;

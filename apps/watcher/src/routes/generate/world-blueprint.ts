@@ -4,7 +4,7 @@ import {
   WorldCreationSeedSchema,
   type WorldBlueprint,
   type WorldCreationSeed,
-} from '@talespin/models';
+} from '@talespin/schema';
 import { createWorldBlueprintFunction } from '../../chains/createWorldBlueprint.js';
 
 type ErrorResponse = { error: string; details?: string };

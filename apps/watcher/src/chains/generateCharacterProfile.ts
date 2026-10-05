@@ -1,7 +1,7 @@
 import {
   CharacterGeneratedDetailsSchema,
   CharacterGroupSchema,
-} from '@talespin/models';
+} from '@talespin/schema';
 import { RunnableLambda } from '@langchain/core/runnables';
 import { characterProfileTemplate } from '../prompts/characterProfileTemplate.js';
 import { z } from 'zod';

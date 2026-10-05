@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Compass, Hammer, Sparkles } from 'lucide-react';
-import type { World } from '@talespin/models';
+import type { World } from '@talespin/schema';
 import { AppHeader } from '@/components/app-header';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';

@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { StoryPlayView } from '@talespin/models';
+import type { StoryPlayView } from '@talespin/schema';
 import {
   ArrowLeft,
   BookOpen,

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { World } from '@talespin/models';
+import { World } from '@talespin/schema';
 import { WorldCard, type WorldDirectoryMode } from './world-card';
 
 interface WorldsGridProps {

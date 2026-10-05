@@ -12,7 +12,7 @@ Routes are the HTTP boundary around validated generation chains. Keep handlers n
 - `POST /generate/faction-details`: structured faction details.
 - `POST /generate/edit-image`: polygon-based image edit.
 
-Generation routes are registered in `generate/index.ts`. Reuse contracts from `@talespin/models`; avoid maintaining a second domain schema in route code where a shared contract exists.
+Generation routes are registered in `generate/index.ts`. Reuse contracts from `@talespin/schema`; avoid maintaining a second domain schema in route code where a shared contract exists.
 
 Prompt templates belong in `src/prompts/` and composition belongs in `src/chains/`. Provider and CDN mechanics belong in plugins or shared packages. Read [Generated Art Direction](../../../../docs/architecture/GENERATED_ART.md) before changing image-generation behavior.
 

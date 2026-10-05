@@ -7,7 +7,7 @@ import {
   type ParsedWorldCreationSeed,
   type WorldBlueprint,
   type WorldGenerationJob,
-} from '@talespin/models';
+} from '@talespin/schema';
 import { ApiError } from './errors';
 import {
   DEFAULT_GRID_HEIGHT,

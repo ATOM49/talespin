@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef } from 'react';
-import type { GridCell, WorldGrid } from '@talespin/models';
+import type { GridCell, WorldGrid } from '@talespin/schema';
 import { Canvas as FabricCanvas } from 'fabric';
 import type { GridCellMetadata } from '@/components/FabricGrid/types';
 import { useGridStore, type GridState } from '@/state/useGridStore';

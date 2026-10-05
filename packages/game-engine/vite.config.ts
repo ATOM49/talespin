@@ -11,7 +11,7 @@ export default defineConfig({
       fileName: 'index',
     },
     outDir: resolve(__dirname, 'dist'),
-    rollupOptions: { external: ['@talespin/models'] },
+    rollupOptions: { external: ['@talespin/schema'] },
   },
   plugins: [dts()],
 });

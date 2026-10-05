@@ -15,7 +15,7 @@ import {
   WorldGenerationJobSchema,
   type WorldCreationSeed,
   type WorldGenerationJob,
-} from '@talespin/models';
+} from '@talespin/schema';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';

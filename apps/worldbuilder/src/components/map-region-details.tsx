@@ -1,7 +1,7 @@
 'use client';
 
 import { BookOpen, Flag, MountainSnow, Sparkles, Wind } from 'lucide-react';
-import type { Faction, Region } from '@talespin/models';
+import type { Faction, Region } from '@talespin/schema';
 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';

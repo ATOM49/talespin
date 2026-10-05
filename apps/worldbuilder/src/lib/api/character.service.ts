@@ -12,7 +12,7 @@ import {
   PlayerCharacterCreationSchema,
   type CharacterImageRequestInput,
   type PlayerCharacterCreationInput,
-} from '@talespin/models';
+} from '@talespin/schema';
 import { ApiError } from './errors';
 import { CharacterQueryParams, CharacterQueryParamsSchema } from './types';
 import { ImageGenerationService } from './ai-image.service';

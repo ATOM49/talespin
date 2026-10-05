@@ -8,7 +8,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       formats: ['es'],
-      name: '@talespin/models',
+      name: '@talespin/schema',
       fileName: 'index',
     },
     outDir: resolve(__dirname, 'dist'),

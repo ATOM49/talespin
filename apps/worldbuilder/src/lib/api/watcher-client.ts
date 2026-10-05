@@ -5,7 +5,7 @@ import {
   type WatcherEndpoint,
   type WatcherInput,
   type WatcherOutput,
-} from '@talespin/models';
+} from '@talespin/schema';
 
 export class WatcherError extends Error {
   constructor(

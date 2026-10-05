@@ -24,7 +24,7 @@ import {
   type MissionPlayView,
   type StoryPlayView,
   type SubmitMissionAction,
-} from '@talespin/models';
+} from '@talespin/schema';
 import { ApiError } from './errors';
 import { GridService } from './grid.service';
 import { StoryService } from './story.service';
