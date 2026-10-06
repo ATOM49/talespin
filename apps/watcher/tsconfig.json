@@ -10,15 +10,7 @@
     "noEmit": true,
     "sourceMap": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": "./",
-    "paths": {
-      "@talespin/schema": [
-        "../../packages/schema/dist/index.d.ts",
-        "../../packages/schema/dist/index.js"
-      ],
-      "@talespin/schema/*": ["../../packages/schema/dist/*"]
-    }
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src/**/*.ts"]
 }
