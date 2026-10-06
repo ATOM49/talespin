@@ -63,6 +63,9 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
+  // Vercel Services cannot run Edge functions, so middleware uses the Node.js
+  // runtime (stable since Next.js 15.5).
+  runtime: 'nodejs',
   // Skip Next internals and public assets (fonts, images) so the sign-in page
   // can load them before a session exists.
   matcher: [
