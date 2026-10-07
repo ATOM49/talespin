@@ -11,7 +11,9 @@ export default async function SignInPage({
   const callbackUrl = params?.callbackUrl;
   const session = await auth();
 
-  if (session) {
+  // A misconfigured Auth.js (e.g. no secret) returns an error body instead of
+  // null; only a real user counts, or this page and the middleware loop.
+  if (session?.user) {
     redirect(callbackUrl || '/');
   }
 
