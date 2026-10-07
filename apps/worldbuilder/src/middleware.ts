@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import NextAuth from 'next-auth';
+import { authConfig } from '@/auth.config';
 
 // `/api/internal` routes authenticate with their own secrets (e.g. the
 // Vercel Cron `CRON_SECRET`) instead of a user session.
@@ -10,30 +10,24 @@ const PUBLIC_ROUTES = [
   '/api/user/role',
   '/api/internal/',
 ];
-const SECURE_SESSION_COOKIE = '__Secure-authjs.session-token';
 const ROLE_SELECTION_ROUTE = '/choose-role';
 
-export default async function middleware(request: NextRequest) {
+// Read the session through the same Auth.js config the pages use. Decoding
+// the cookie separately (getToken) can disagree with `auth()` about the cookie
+// name or secret, and then /signin bounces signed-in users straight back here
+// in an endless redirect loop.
+const { auth } = NextAuth(authConfig);
+
+export default auth((request) => {
   const { nextUrl } = request;
+  const user = request.auth?.user;
   const isPublic = PUBLIC_ROUTES.some((path) =>
     nextUrl.pathname.startsWith(path),
   );
   const isRoleSelectionRoute =
     nextUrl.pathname.startsWith(ROLE_SELECTION_ROUTE);
-  // Auth.js prefixes the session cookie with __Secure- on HTTPS (e.g. on
-  // Vercel); getToken must be told, or it looks for the wrong cookie.
-  const secureCookie =
-    nextUrl.protocol === 'https:' ||
-    request.cookies
-      .getAll()
-      .some((cookie) => cookie.name.startsWith(SECURE_SESSION_COOKIE));
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-    secureCookie,
-  });
 
-  if (!token && !isPublic) {
+  if (!user && !isPublic) {
     if (nextUrl.pathname.startsWith('/api')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -43,7 +37,7 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(signInUrl);
   }
 
-  if (token && !token.role && !isPublic && !isRoleSelectionRoute) {
+  if (user && !user.role && !isPublic && !isRoleSelectionRoute) {
     if (nextUrl.pathname.startsWith('/api')) {
       return NextResponse.json(
         {
@@ -60,7 +54,7 @@ export default async function middleware(request: NextRequest) {
   }
 
   return NextResponse.next();
-}
+});
 
 export const config = {
   // Vercel Services cannot run Edge functions, so middleware uses the Node.js

@@ -76,7 +76,7 @@ All variables live on the one project; both services read the ones they need.
 | --------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | `DATABASE_URL`                                                        | web     | MongoDB connection string                                                                                                      |
 | `NEXTAUTH_SECRET`                                                     | web     | Random 32+ byte secret                                                                                                         |
-| `AUTH_URL`                                                            | web     | Public origin, e.g. `https://talespin.vercel.app` (Production only)                                                            |
+| `AUTH_URL`                                                            | web     | Optional. Exact public `https://` origin (Production only); leave unset to use the request host. Never `http://localhost`.     |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`                            | web     | Google OAuth client; callback `https://<origin>/api/auth/callback/google`                                                      |
 | `WATCHER_API_URL`                                                     | web     | `https://<production-domain>/_watcher`                                                                                         |
 | `WATCHER_GENERATION_TIMEOUT_MS`                                       | web     | `240000` on Hobby                                                                                                              |
@@ -88,7 +88,7 @@ All variables live on the one project; both services read the ones they need.
 | `MINIO_ENDPOINT`, `MINIO_PORT`, `MINIO_USE_SSL`, `MINIO_REGION`       | watcher | Storage API endpoint                                                                                                           |
 | `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`                                | watcher | Storage credentials                                                                                                            |
 
-Both OAuth providers are required at runtime; `E2E_TEST_MODE` is ignored in
+Google OAuth is required at runtime; `E2E_TEST_MODE` is ignored in
 production. `next/image` only optimizes images from the configured public
 origin, and Vercel reads it at build time, so redeploy after changing it.
 Every watcher route except `/` requires `Authorization: Bearer
