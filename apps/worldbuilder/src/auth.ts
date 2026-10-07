@@ -4,6 +4,7 @@ import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@/lib/prisma';
 import type { AppUserRole } from '@/lib/auth/roles';
+import { authConfig } from '@/auth.config';
 
 const ensureEnv = (key: string) => {
   const value = process.env[key];
@@ -52,12 +53,11 @@ const createProviders = (): NextAuthConfig['providers'] =>
 const adapter = PrismaAdapter(prisma);
 
 export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
+  ...authConfig,
   adapter,
-  session: { strategy: 'jwt' },
-  pages: { signIn: '/signin' },
-  trustHost: true,
   providers: createProviders(),
   callbacks: {
+    ...authConfig.callbacks,
     async jwt({ token, user, trigger }) {
       if (user) {
         token.role = (user.role as AppUserRole | undefined) ?? undefined;
@@ -75,13 +75,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
 
       return token;
     },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.sub ?? '';
-        session.user.role = token.role as AppUserRole | undefined;
-      }
-      return session;
-    },
   },
-  secret: process.env.NEXTAUTH_SECRET,
 }));
