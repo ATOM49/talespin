@@ -22,7 +22,7 @@ export default async function SignInPage({
           <p className="text-sm font-semibold text-primary">Welcome back</p>
           <h1 className="text-2xl font-bold">Sign in to Talespin</h1>
           <p className="text-sm text-muted-foreground">
-            Use your Google or Facebook account to continue.
+            Use your Google account to continue.
           </p>
         </div>
         <SignInProviders

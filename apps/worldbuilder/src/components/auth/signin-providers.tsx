@@ -4,10 +4,7 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 
-const PROVIDERS = [
-  { id: 'google', label: 'Continue with Google' },
-  { id: 'facebook', label: 'Continue with Facebook' },
-];
+const PROVIDERS = [{ id: 'google', label: 'Continue with Google' }];
 
 interface SignInProvidersProps {
   callbackUrl?: string;

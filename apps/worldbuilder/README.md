@@ -12,7 +12,7 @@ cp apps/worldbuilder/.env.example apps/worldbuilder/.env
 
 The template defaults to the development-only E2E credentials account. Generate `NEXTAUTH_SECRET` with `openssl rand -base64 32`, start the stack, then use **Continue with E2E account** and choose `BUILDER` during onboarding.
 
-For production-like authentication, set `E2E_TEST_MODE=false` and configure both Google and Facebook credentials. Because the current auth module initializes both providers, all four OAuth values are required. Only `NEXT_PUBLIC_COPILOT_CLOUD_PUBLIC_API_KEY` is browser-visible; database, auth, OAuth, and watcher values must remain server-side.
+For production-like authentication, set `E2E_TEST_MODE=false` and configure Google credentials (`GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`). Only `NEXT_PUBLIC_COPILOT_CLOUD_PUBLIC_API_KEY` is browser-visible; database, auth, OAuth, and watcher values must remain server-side.
 
 ## Development
 
