@@ -78,7 +78,6 @@ All variables live on the one project; both services read the ones they need.
 | `NEXTAUTH_SECRET`                                                     | web     | Random 32+ byte secret                                                                                                         |
 | `AUTH_URL`                                                            | web     | Public origin, e.g. `https://talespin.vercel.app` (Production only)                                                            |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`                            | web     | Google OAuth client; callback `https://<origin>/api/auth/callback/google`                                                      |
-| `FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET`                        | web     | Facebook OAuth app; callback `https://<origin>/api/auth/callback/facebook`                                                     |
 | `WATCHER_API_URL`                                                     | web     | `https://<production-domain>/_watcher`                                                                                         |
 | `WATCHER_GENERATION_TIMEOUT_MS`                                       | web     | `240000` on Hobby                                                                                                              |
 | `CRON_SECRET`                                                         | web     | Random secret; Vercel sends it to the cron route                                                                               |

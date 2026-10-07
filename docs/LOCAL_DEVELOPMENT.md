@@ -67,19 +67,16 @@ openssl rand -base64 32
 
 `E2E_TEST_MODE=true` enables a local credentials account only when `NODE_ENV` is not `production`. This is the shortest development path and never belongs in a production environment.
 
-For real OAuth, set `E2E_TEST_MODE=false` and configure both Google and Facebook credentials. The current auth module initializes both providers, so all four values are required:
+For real OAuth, set `E2E_TEST_MODE=false` and configure Google credentials. Both values are required:
 
 ```env
 GOOGLE_CLIENT_ID="..."
 GOOGLE_CLIENT_SECRET="..."
-FACEBOOK_CLIENT_ID="..."
-FACEBOOK_CLIENT_SECRET="..."
 ```
 
-Use these local callback URLs:
+Use this local callback URL:
 
 - Google: `http://localhost:3000/api/auth/callback/google`
-- Facebook: `http://localhost:3000/api/auth/callback/facebook`
 
 `NEXT_PUBLIC_COPILOT_CLOUD_PUBLIC_API_KEY` is optional unless testing CopilotKit-assisted UI.
 
@@ -217,7 +214,7 @@ Confirm `apps/watcher/.env` exists. Fastify CLI loads it from the watcher packag
 
 ### Worldbuilder reports missing auth variables
 
-For local development, confirm `E2E_TEST_MODE=true`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, and `AUTH_URL` in `apps/worldbuilder/.env`. When E2E mode is disabled, both Google and Facebook providers must be configured.
+For local development, confirm `E2E_TEST_MODE=true`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, and `AUTH_URL` in `apps/worldbuilder/.env`. When E2E mode is disabled, the Google provider must be configured.
 
 ### MinIO uploads fail
 

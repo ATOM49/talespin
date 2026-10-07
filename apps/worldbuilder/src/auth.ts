@@ -1,6 +1,5 @@
 import NextAuth, { type NextAuthConfig } from 'next-auth';
 import Google from 'next-auth/providers/google';
-import Facebook from 'next-auth/providers/facebook';
 import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@/lib/prisma';
@@ -47,10 +46,6 @@ const createProviders = (): NextAuthConfig['providers'] =>
         Google({
           clientId: ensureEnv('GOOGLE_CLIENT_ID'),
           clientSecret: ensureEnv('GOOGLE_CLIENT_SECRET'),
-        }),
-        Facebook({
-          clientId: ensureEnv('FACEBOOK_CLIENT_ID'),
-          clientSecret: ensureEnv('FACEBOOK_CLIENT_SECRET'),
         }),
       ];
 
