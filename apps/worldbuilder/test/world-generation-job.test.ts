@@ -9,7 +9,6 @@ type JobRecord = Prisma.WorldGenerationJobGetPayload<object>;
 
 const seed = {
   name: 'Interrupted World',
-  theme: 'fantasy',
   description: 'A world whose first generation worker disappeared mid-flight.',
   regionCount: 5,
   factionCount: 3,
@@ -119,4 +118,47 @@ test('the background worker selects queued work and executes it outside the rout
   assert.equal(processedJobId, record.id);
   assert.deepEqual(executed, { jobId: record.id, userId: record.userId });
   assert.deepEqual(selection?.orderBy, { createdAt: 'asc' });
+});
+
+test('world creation queues a setting description without a name or theme', async () => {
+  let saved: Prisma.WorldGenerationJobCreateArgs | undefined;
+  const fakePrisma = {
+    worldGenerationJob: {
+      create: async (args: Prisma.WorldGenerationJobCreateArgs) => {
+        saved = args;
+        return createJobRecord({
+          seed: args.data.seed as Prisma.JsonObject,
+          status: 'QUEUED',
+          blueprint: null,
+          leaseExpiresAt: null,
+        });
+      },
+    },
+  } as unknown as PrismaClient;
+
+  const job = await new WorldGenerationService(fakePrisma).createJob(
+    { description: seed.description },
+    'builder-1',
+  );
+
+  assert.equal(saved?.data.userId, 'builder-1');
+  assert.equal(job.seed.description, seed.description);
+  assert.equal(job.seed.regionCount, 5);
+  assert.equal('theme' in job.seed, false);
+  assert.equal(job.seed.name, undefined);
+});
+
+test('saved jobs with a legacy theme can still be recovered', async () => {
+  const record = createJobRecord({ seed: { ...seed, theme: 'fantasy' } });
+  const fakePrisma = {
+    worldGenerationJob: { findFirst: async () => record },
+  } as unknown as PrismaClient;
+
+  const job = await new WorldGenerationService(fakePrisma).getJob(
+    record.id,
+    record.userId,
+  );
+
+  assert.equal(job.seed.description, seed.description);
+  assert.equal('theme' in job.seed, false);
 });

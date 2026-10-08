@@ -11,11 +11,10 @@ import {
   RegionInfluenceSchema,
   RegionSchema,
 } from './region';
-import { WorldLoreSchema, WorldSchema, WorldThemeSchema } from './world';
+import { WorldLoreSchema, WorldSchema } from './world';
 
 export const WorldCreationSeedSchema = z.object({
   name: z.string().trim().min(1).max(80).optional(),
-  theme: WorldThemeSchema,
   description: z
     .string()
     .trim()
@@ -29,7 +28,6 @@ export const WorldCreationSeedSchema = z.object({
 export const EnhancedWorldContextSchema = z.object({
   name: z.string().min(1),
   description: z.string().min(120),
-  theme: WorldThemeSchema,
   lore: WorldLoreSchema,
 });
 

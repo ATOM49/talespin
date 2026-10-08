@@ -256,11 +256,6 @@ export class WorldGenerationService {
   ) {
     const issues: string[] = [];
 
-    if (blueprint.context.theme !== seed.theme) {
-      issues.push(
-        'The generated world theme does not match the requested theme.',
-      );
-    }
     if (blueprint.regions.length !== seed.regionCount) {
       issues.push(
         `Expected ${seed.regionCount} regions, received ${blueprint.regions.length}.`,
@@ -435,7 +430,6 @@ export class WorldGenerationService {
           data: {
             name: blueprint.context.name,
             description: blueprint.context.description,
-            theme: blueprint.context.theme,
             contextWindowLimit: 1024,
             mapImageUrl: blueprint.mapImageUrl,
             lore: blueprint.context.lore as Prisma.InputJsonValue,

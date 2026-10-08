@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { WorldFormSchema, WorldThemeSchema } from './world.js';
+import { WorldFormSchema } from './world.js';
 import {
   WorldBlueprintSchema,
   WorldCreationSeedSchema,
@@ -17,9 +17,7 @@ import {
 } from './narrative.js';
 
 export const GenerationIdSchema = z.string().regex(/^[A-Za-z0-9._:-]{1,128}$/);
-export const MapImageRequestSchema = WorldFormSchema.extend({
-  theme: WorldThemeSchema,
-});
+export const MapImageRequestSchema = WorldFormSchema;
 export const ImageGenerationResponseSchema = z.object({
   imageUrl: z.string().url(),
   revisedPrompt: z.string().optional(),

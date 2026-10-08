@@ -65,10 +65,8 @@ test('builder creates a coherent living world from one short seed', async ({
     ).toBeVisible();
 
     await page.getByLabel('World name').fill(worldName);
-    await page.getByLabel('Theme').click();
-    await page.getByRole('option', { name: 'Fantasy' }).click();
     await page
-      .getByLabel('The core idea')
+      .getByLabel('The setting')
       .fill(
         'A floating archipelago rides on sleeping giants while rival lighthouse guilds predict which island will wake next.',
       );

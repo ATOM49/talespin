@@ -28,26 +28,11 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import {
   GenerationTimeline,
   type GenerationState,
 } from '@/components/world-creation/generation-timeline';
-
-const THEME_OPTIONS = [
-  { value: 'fantasy', label: 'Fantasy' },
-  { value: 'sci‑fi', label: 'Science fiction' },
-  { value: 'modern', label: 'Modern' },
-  { value: 'historical', label: 'Historical' },
-  { value: 'post‑apocalyptic', label: 'Post-apocalyptic' },
-] as const;
 
 const ACTIVE_JOB_KEY = 'talespin:active-world-generation-job';
 const POLL_INTERVAL_MS = 2000;
@@ -105,7 +90,6 @@ export function WorldCreationForm() {
   const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestJobRef = useRef<WorldGenerationJob | null>(null);
   const [name, setName] = useState('');
-  const [theme, setTheme] = useState('');
   const [description, setDescription] = useState('');
   const [jobId, setJobId] = useState<string | null>(null);
   const [job, setJob] = useState<WorldGenerationJob | null>(null);
@@ -119,8 +103,7 @@ export function WorldCreationForm() {
 
   const isLocked = Boolean(jobId) || isCreatingJob;
   const isDispatching = isCreatingJob || isRetryingJob;
-  const canSubmit =
-    !isRecoveringJob && theme.length > 0 && description.trim().length > 0;
+  const canSubmit = !isRecoveringJob && description.trim().length >= 12;
 
   const completionItems = summary
     ? [
@@ -164,7 +147,6 @@ export function WorldCreationForm() {
       setJob(nextJob);
       setJobId(nextJob.jobId);
       setName(nextJob.seed.name ?? '');
-      setTheme(nextJob.seed.theme);
       setDescription(nextJob.seed.description);
       setGenerationState(stateForJob(nextJob));
       setError(nextJob.error ?? null);
@@ -311,7 +293,6 @@ export function WorldCreationForm() {
 
     const parsed = WorldCreationSeedSchema.safeParse({
       name: name.trim() || undefined,
-      theme,
       description: description.trim(),
     });
 
@@ -319,7 +300,7 @@ export function WorldCreationForm() {
       setGenerationState('error');
       setError(
         parsed.error.issues[0]?.message ??
-          'Add a theme and a short description to begin.',
+          'Add a short setting description to begin.',
       );
       return;
     }
@@ -398,28 +379,7 @@ export function WorldCreationForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="world-theme">Theme</Label>
-              <Select
-                value={theme}
-                onValueChange={setTheme}
-                disabled={isLocked}
-                required
-              >
-                <SelectTrigger id="world-theme" className="w-full">
-                  <SelectValue placeholder="Choose a creative direction" />
-                </SelectTrigger>
-                <SelectContent>
-                  {THEME_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="world-description">The core idea</Label>
+              <Label htmlFor="world-description">The setting</Label>
               <Textarea
                 id="world-description"
                 name="description"
@@ -431,8 +391,9 @@ export function WorldCreationForm() {
                 required
               />
               <p className="text-xs text-muted-foreground">
-                Mention the conflict, mood, or strange rule you most want the
-                world to preserve.
+                Describe the geography, inhabitants, or unusual rules that
+                define this world. Stories and their themes can grow from it
+                later.
               </p>
             </div>
 

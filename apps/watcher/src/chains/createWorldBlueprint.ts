@@ -119,7 +119,6 @@ const assertBlueprintReferences = (blueprint: WorldBlueprint) => {
 const enhanceWorld = async (seed: ParsedWorldCreationSeed) => {
   const prompt = await enhanceWorldPrompt.format({
     name: seed.name ?? 'Let the setting suggest an original name',
-    theme: seed.theme,
     description: seed.description,
   });
   const model = createStructuredOutputModel<EnhancedWorldContext>();
@@ -171,7 +170,6 @@ const generateMapAndRegions = async (
 ) => {
   const mapPrompt = await worldMapPrompt.format({
     name: context.name,
-    theme: context.theme,
     description: context.description,
     tone: context.lore.tone,
     visualStyle: context.lore.visualStyle,

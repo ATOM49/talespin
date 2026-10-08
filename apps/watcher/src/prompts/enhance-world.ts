@@ -7,11 +7,11 @@ Turn the builder's small seed into one coherent setting bible. Preserve their in
 
 Builder seed
 - Optional name: {name}
-- Theme: {theme}
 - Description: {description}
 
 Requirements
 - Create a memorable name only when the builder did not provide one.
+- Derive the geography, societies, tone, and visual style from the setting description. Keep the setting reusable for different stories and themes; do not impose a single overarching plot or narrative theme.
 - The main description should explain the world's defining premise, physical reality, inhabitants, pressures, and the uneasy status quo in 3-5 substantial paragraphs.
 - Current tensions must create several sides with understandable motives, not a simple good-versus-evil split.
 - Gameplay pillars should describe repeatable player activities.

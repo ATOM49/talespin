@@ -8,6 +8,7 @@ import type {
 import { characterPromptTemplate } from '../../src/prompts/characterPrompt.js';
 import { factionPromptTemplate } from '../../src/prompts/generate-faction.js';
 import { mapPromptTemplate } from '../../src/prompts/generate-map.js';
+import { enhanceWorldPrompt } from '../../src/prompts/enhance-world.js';
 import { worldMapPrompt } from '../../src/prompts/world-map.js';
 import {
   buildCharacterImagePrompt,
@@ -36,7 +37,6 @@ test('standalone map, faction, and character prompts share the house style', asy
   const prompts = await Promise.all([
     mapPromptTemplate.format({
       name: 'Pelagos',
-      theme: 'hopeful ocean fantasy',
       description: 'A reef-ringed archipelago',
       settings: 'Sunken observatory and coral road',
     }),
@@ -71,7 +71,6 @@ test('standalone map, faction, and character prompts share the house style', asy
 test('world blueprint map, faction, and character prompts share the house style', async () => {
   const context = {
     name: 'Pelagos',
-    theme: 'fantasy',
     description:
       'A reef-ringed archipelago where harbor cities depend on luminous coral roads spanning warm shallows and abyssal trenches.',
     lore: {
@@ -118,7 +117,6 @@ test('world blueprint map, faction, and character prompts share the house style'
 
   const mapPrompt = await worldMapPrompt.format({
     name: context.name,
-    theme: context.theme,
     description: context.description,
     tone: context.lore.tone,
     visualStyle: context.lore.visualStyle,
@@ -167,4 +165,18 @@ test('gallery image prompts retain the planned pose and signature prop', () => {
   assert.match(prompt, /opens all three coral needles with both hands/);
   assert.match(prompt, /clear physical interaction/);
   assert.match(prompt, /No visible text/);
+});
+
+test('world enrichment takes its direction from the setting without a theme input', async () => {
+  const prompt = await enhanceWorldPrompt.format({
+    name: 'Let the setting suggest an original name',
+    description: 'An archipelago carried on the backs of sleeping giants.',
+  });
+
+  assert.match(
+    prompt,
+    /An archipelago carried on the backs of sleeping giants/,
+  );
+  assert.match(prompt, /reusable for different stories and themes/);
+  assert.doesNotMatch(prompt, /- Theme:/);
 });
