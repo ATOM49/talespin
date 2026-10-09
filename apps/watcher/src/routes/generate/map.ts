@@ -19,21 +19,20 @@ const generateMap: FastifyPluginAsync = async (fastify) => {
       const world = req.body;
 
       // Validate required fields
-      if (!world.name || !world.theme) {
+      if (!world.name) {
         return reply.status(400).send({
           error: 'Missing required fields',
-          details: 'Both name and theme are required',
+          details: 'World name is required',
         });
       }
 
       fastify.log.info({
         msg: 'Starting map generation',
-        world: { name: world.name, theme: world.theme },
+        world: { name: world.name },
       });
 
       const prompt = await mapPromptTemplate.format({
         name: world.name,
-        theme: world.theme,
         description: world.description ?? '–',
         settings: world.settings ?? '–',
       });

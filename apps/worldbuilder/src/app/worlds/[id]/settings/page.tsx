@@ -150,10 +150,12 @@ function SettingsPage({ params }: { params: Promise<{ id: string }> }) {
                 <p className="text-sm font-medium">Name</p>
                 <p className="text-sm text-muted-foreground">{world.name}</p>
               </div>
-              <div>
-                <p className="text-sm font-medium">Theme</p>
-                <p className="text-sm text-muted-foreground">{world.theme}</p>
-              </div>
+              {world.theme && (
+                <div>
+                  <p className="text-sm font-medium">Theme</p>
+                  <p className="text-sm text-muted-foreground">{world.theme}</p>
+                </div>
+              )}
               {world.description && (
                 <div>
                   <p className="text-sm font-medium">Description</p>

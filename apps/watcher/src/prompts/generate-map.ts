@@ -7,7 +7,6 @@ import {
 const mapPromptTemplate = PromptTemplate.fromTemplate(`
 Create a high-fidelity pixel-art world map viewed from directly above.
 
-Theme: {theme}
 Description: {description}
 Settings / Key Features: {settings}
 World Name (Context Only - DO NOT RENDER AS TEXT): {name}
@@ -19,7 +18,7 @@ Map-specific direction:
 - Fill the complete square canvas with geography. Show distinct territories through natural terrain transitions rather than drawn boundary lines.
 - Include readable mountains, forests, rivers, lakes, settlements, paths, landmarks, and environmental story details derived from the world description.
 - Keep major landforms and travel routes legible at thumbnail size while rewarding close inspection with clustered pixel detail.
-- Use the theme to drive the palette and mood without weakening terrain readability.
+- Use the setting description to drive the palette and mood without weakening terrain readability.
 - ${TEXT_FREE_IMAGE_DIRECTION}
 `);
 

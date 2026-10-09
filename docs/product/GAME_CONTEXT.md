@@ -6,7 +6,7 @@ This document combines the current Talespin product with its narrative-game dire
 
 ## Product Concept
 
-**Current:** Talespin is a collaborative worldbuilding application. A builder can seed a persistent world from a theme and short premise; the generation service expands that seed into a world bible, map, image-grounded regions, factions, faction territory, and recurring characters. Generated maps, factions, and characters share a high-fidelity cinematic pixel-art direction; characters receive identity-stable pose language and story-derived signature props. Builders can also edit the map grid, locations, cultures, species, archetypes, and characters individually. Builder and explorer roles already distinguish content creation from play-oriented access.
+**Current:** Talespin is a collaborative worldbuilding application. A builder can seed a persistent world from an optional name and short setting description; the generation service expands that seed into a world bible, map, image-grounded regions, factions, faction territory, and recurring characters. Generated maps, factions, and characters share a high-fidelity cinematic pixel-art direction; characters receive identity-stable pose language and story-derived signature props. Builders can also edit the map grid, locations, cultures, species, archetypes, and characters individually. Builder and explorer roles already distinguish content creation from play-oriented access.
 
 **Current explorer slice:** Talespin also runs a persistent, single-player,
 three-Chapter Story. The explorer travels cell by cell, meets world-authored or

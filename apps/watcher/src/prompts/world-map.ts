@@ -8,7 +8,6 @@ export const worldMapPrompt = PromptTemplate.fromTemplate(`
 Create a square, top-down illustrated world map for a persistent narrative game.
 
 World: {name}
-Theme: {theme}
 Premise: {description}
 Tone: {tone}
 Visual language: {visualStyle}

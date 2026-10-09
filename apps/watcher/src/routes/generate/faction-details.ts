@@ -33,7 +33,7 @@ const generateFactionDetails: FastifyPluginAsync = async (fastify) => {
       const prompt = await promptTemplate.format({
         name: world.name,
         description: world.description || 'No description provided',
-        theme: world.theme || 'Generic Fantasy',
+        theme: world.theme || 'Derive from the world description',
       });
 
       const result = await runnable.invoke({

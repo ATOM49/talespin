@@ -21,7 +21,7 @@ it('uses shared wire schemas and keeps the generation scope across Fastify hooks
       method: 'POST' as const,
       url: '/generate/map',
       headers: { 'x-generation-id': 'same-job' },
-      payload: { name: 'World', theme: 'fantasy' },
+      payload: { name: 'World', description: 'A reef-ringed archipelago.' },
     };
     assert.equal((await app.inject(input)).statusCode, 200);
     assert.equal((await app.inject(input)).statusCode, 200);
